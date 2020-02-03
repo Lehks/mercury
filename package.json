@@ -1,0 +1,29 @@
+{
+    "name": "mercury",
+    "version": "1.0.0",
+    "description": "A library that generates both SQL to create a database and a JS client for the database.",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Lehks/mercury.git"
+    },
+    "keywords": [],
+    "author": "Lukas Reichmann",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/Lehks/mercury/issues"
+    },
+    "homepage": "https://github.com/Lehks/mercury#readme",
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^2.18.0",
+        "@typescript-eslint/parser": "^2.18.0",
+        "eslint": "^6.8.0",
+        "eslint-plugin-import": "^2.20.1",
+        "eslint-plugin-prefer-arrow": "^1.1.7",
+        "prettier": "^1.19.1",
+        "typescript": "^3.7.5"
+    }
+}
