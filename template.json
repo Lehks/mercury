@@ -1,0 +1,86 @@
+{
+    "databases": {
+        "my-database": {
+            "connection": {
+                "driver": "driver-name",
+                "default": {
+                    "credentials": {
+                        "host": "hostname.com",
+                        "user": "user",
+                        "password": "password"
+                    },
+                    "additional": {
+                        "key1": "value1",
+                        "key2": ["value", "array"]
+                    }
+                },
+                "admin": {
+                    "credentials": {
+                        "host": "hostname.com",
+                        "user": "user",
+                        "password": "password"
+                    },
+                    "additional": {
+                        "key1": "value1",
+                        "key2": ["value", "array"]
+                    }
+                }
+            },
+            "meta": {
+                "singularClassNames": true,
+                "classNameCase": "upper-camel-case",
+                "methodCase": "lower-camel-case",
+                "enumLiteralCase": "CONSTANT_CASE"
+            },
+            "tables": {
+                "users": {
+                    "columns": {
+                        "id": "#pk"
+                    },
+                    "primaryKey": "id"
+                },
+                "user-data": {
+                    "meta": {
+                        "className": "UserData"
+                    },
+                    "columns": {
+                        "user-id": "#pk"
+                    },
+                    "primaryKey": "user-id",
+                    "constraints": {
+                        "foreignKeys": {
+                            "FK_users": {
+                                "on": "user-id",
+                                "references": {
+                                    "table": "users",
+                                    "column": "id"
+                                },
+                                "onUpdate": "cascade",
+                                "onDelete": "restrict"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "second-database": {
+            "connection": "./path/to/file.json"
+        }
+    },
+    "meta": {
+        "clientOutputDir": "./",
+        "sqlOutputDir": "./",
+        "clientGenerator": {
+            "name": "generator-name",
+            "additional": {
+                "key1": "value1"
+            }
+        }
+    },
+    "columnDefinitions": {
+        "#pk": {
+            "base": "int",
+            "default": "auto-increment"
+        }
+    }
+}
