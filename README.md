@@ -163,19 +163,19 @@ The client-side data types that represent each of the types is defined by the cl
 
 There are three integer types:
 
-| Base Type  | Size             |
-| ---------- | ---------------- |
-| `smallint` | At least 2 bytes |
-| `int`      | At least 4 bytes |
-| `bigint`   | At least 8 bytes |
+| Base Type   | Size             |
+| ----------- | ---------------- |
+| `small-int` | At least 2 bytes |
+| `int`       | At least 4 bytes |
+| `big-int`   | At least 8 bytes |
 
 The JSON of an integer type looks like this:
 
 ```JSON
 {
-    "base": "'smallint' | 'int' | 'bigint'",
+    "base": "'small-int' | 'int' | 'big-int'",
     "unsigned": "<boolean>",
-    "default": "<integer value> | 'AUTO_INCREMENT' | null"
+    "default": "<integer value> | 'auto-increment' | null"
 }
 ```
 
@@ -184,7 +184,7 @@ The meaning of the properties are:
 1. `unsigned`: A boolean value that decides whether the value is signed or unsigned. This will default to `false`.
 2. `default`: The default value of the column. The possible values are:
     1. An integer value. The default will be this exact value.
-    2. The string `AUTO_INCREMENT`. Each inserted row will have a different value. This can be used to generate values for primary key columns.
+    2. The string `auto-increment`. Each inserted row will have a different value. This can be used to generate values for primary key columns.
     3. The keyword `null`. This is only available if the column is nullable and it will cause the value to be `null` by default.
     4. Omitting this property altogether. This will cause for no default value to be set.
 
@@ -219,19 +219,19 @@ The meaning of the properties are:
 
 There are three string types:
 
-| Base Type | Kind                      |
-| --------- | ------------------------- |
-| `varchar` | Variable length string    |
-| `char`    | Fixed length string       |
-| `enum`    | Predefined set of strings |
+| Base Type  | Kind                      |
+| ---------- | ------------------------- |
+| `var-char` | Variable length string    |
+| `char`     | Fixed length string       |
+| `enum`     | Predefined set of strings |
 
-The JSON data for `varchar` and `char` types are very different from the one for `enum`.
+The JSON data for `var-char` and `char` types are very different from the one for `enum`.
 
-The data for `varchar` and `char` looks like this:
+The data for `var-char` and `char` looks like this:
 
 ```json
 {
-    "base": "'varchar' | 'char'",
+    "base": "'var-char' | 'char'",
     "length": "<positive integer>",
     "default": "<string> | null"
 }
@@ -261,20 +261,19 @@ The data of `enum`s looks like this:
 
 #### Temporal Types
 
-There are three kinds of temporal types: `date`, `time` and `datetime`. `date` stores only dates, `time` only stores time and `datetime` stores both.
+There are three kinds of temporal types: `date`, `time` and `date-time`. `date` stores only dates, `time` only stores time and `date-time` stores both.
 
 The data of temporal types looks like this:
 
 ```json
 {
-    "base": "'date' | 'time' | 'datetime'",
-    "default": "<date / time / datetime string> | 'NOW' | null"
+    "base": "'date' | 'time' | 'date-time'",
+    "default": "<date / time / date-time string> | 'NOW' | null"
 }
 ```
 
-1. `literals`: An array of the allowed string literals.
-2. `default`: The default value of the column. The possible values are:
-    1. Either a date, time or datetime string (depending on the base type). The default will be this value.
+1. `default`: The default value of the column. The possible values are:
+    1. Either a date, time or date-time string (depending on the base type). The default will be this value.
     2. The string `NOW`. This will insert the current date and time as a default value.
     3. The keyword `null`. This is only available if the column is nullable and it will cause the value to be `null` by default.
     4. Omitting this property altogether. This will cause for no default value to be set.
@@ -482,13 +481,11 @@ When a name is changed directly, the naming conventions will not apply to this p
 
 ###### Database Names
 
-There are two names that can be changed for a database. Firstly, the name of the database in the RDBMS can be changed using the property `rdbmsName`. <!--Secondly, the name of the class that is generated for the database can be changed using the property `className`. Both names default to the name that is the key in the `databases` object.-->
-
-<!--todo figure out where in the client the database name is used and add it here-->
+There are two names that can be changed for a database. Firstly, the name of the database in the RDBMS can be changed using the property `rdbmsName`. Secondly, the name of the module that is generated for the database can be changed using the property `moduleName`. Both names default to the name that is the key in the `databases` object.
 
 ###### Table Names
 
-There are two names that can be changed for a table. Firstly, the name of the table in the RDBMS can be changed using the property `rdbmsName`. Secondly, the name of the class that is generated for the table can be changed using the property `className`. Both names default to the name that is the key in the `tables` object.
+There are three names that can be changed for a table. Firstly, the name of the table in the RDBMS can be changed using the property `rdbmsName`. Secondly, the name of the class that is generated for the table can be changed using the property `className`. Thirdly, `moduleName` determines the filename that the class is in. All three names default to the name that is the key in the `tables` object.
 
 ###### Column Names
 
@@ -501,7 +498,7 @@ In the case of columns, there are a lot of names to be changed:
 
 ##### Naming Conventions
 
-In contrast to the setting of fixed names, naming conventions can be set on any level (although changing the conventions on column level does rarely make sense). The conventions then apply to all of the names that are on the same level or below (e.g. the globally set conventions apply to all databases their tables and columns whereas a convention set on database level will apply only to that database and its tables and columns).
+In contrast to the setting of fixed names, naming conventions can be set on any level (although changing the conventions on column level rarely makes sense). The conventions then apply to all of the names that are on the same level or below (e.g. the globally set conventions apply to all databases their tables and columns whereas a convention set on database level will apply only to that database and its tables and columns).
 
 Also, the conventions have cascading behavior. For example, when a convention is set on global level and another convention is set on database level for a single database, then the global convention will apply to all databases except the one that has its conventions set on database level.
 
@@ -515,27 +512,27 @@ The available conventions are:
 
 These properties control the naming conventions:
 
-1. `rdbmsDatabaseNameConvention`: The name of the database in the RDBMS. Defaults to `upper-camel-case`. Does not exist on column level.
-2. `rdbmsTableNameConvention`: The name of the tables in a database. Defaults to `upper-camel-case`.
-3. `rdbmsColumnNameConvention`: The name of the columns in a database. Defaults to `camel-case`.
-4. `sourceFileConvention`: The name of all source files in a client. Defaults to `minus-case`. Does not exist on column level.
-5. `classNameConvention`: The name of all classes in a client. Defaults to `upper-camel-case`. Does not exist on column level.
-6. `methodNameConvention`: The name of all methods in a client class (including getters and setters). Defaults to `camel-case`.
-7. `constantNameConvention`: The name of the column constants. Defaults to `constant-case`.
+1. `naming.rdbmsDatabaseNameConvention`: The name of the database in the RDBMS. Defaults to `upper-camel-case`. Does not exist on table and column level.
+2. `naming.rdbmsTableNameConvention`: The name of the tables in a database. Defaults to `upper-camel-case`. Does not exist on column level.
+3. `naming.rdbmsColumnNameConvention`: The name of the columns in a database. Defaults to `camel-case`.
+4. `naming.moduleNameConvention`: The name of all modules in a client (and also the name of directories). Defaults to `minus-case`. Does not exist on table or column level.
+5. `naming.classNameConvention`: The name of all classes in a client. Defaults to `upper-camel-case`. Does not exist on column level.
+6. `naming.methodNameConvention`: The name of all methods in a client class (including getters and setters). Defaults to `camel-case`.
+7. `naming.constantNameConvention`: The name of the column constants. Defaults to `constant-case`.
 
 ##### Singular Class Names
 
-There is also another naming option, called `singularClassNames`. It is a boolean value. When `true` (which is the default), every table name that is in plural will be turned into singular when creating the client-class name of that table. For example, a database `Users` will have a class `User`.
+There is also another naming option, called `singularClassNames`. It is a boolean value. When `true` (which is the default), every table name that is in plural will be turned into singular when creating the client-class name of that table. For example, a database `Users` will have a class `User`. The singular class names option can be set on global and database level.
 
 ### Connections
 
-Connections are defined on database level. They define the driver that is used for the connection and the data that is used to connect to the database (for example the username and password to log into the database).
+Connections are defined on database level. They define the driver that is used for the connection and the data that is used to connect to the database. This data is split up into two kinds, for one the public data which may be accessed by anyone and the credentials, which is all data that is sensitive and should not be shared with the world (such as username and passwords). The credentials also include data that may change (such as the database IP or hostname, which may change when the database is moved to a different machine).
 
-Since the connection data may hold sensitive information (like passwords), there are different ways to provide that data. These ways are:
+The public connection data is always stored in the DDF itself. It is also possible to store the credentials in the DDF, but there are also other ways to store the credentials. In total, there are three ways to store the credentials.
 
 1. internal: The credentials are placed directly in the DDF as a JSON object. This variant was used in all of the previous examples.
-2. external: The JSON object that would have been placed directly in the DDF in the _internal_ variant is now placed in a separate file. This way, the DDF can be shared whereas the credentials file can be left out. The DDF will only contain the path to the DDF.
-3. environment: The credentials will be loaded from environment variables. The DDF will only contain a special identifier
+2. external: The JSON object that would have been placed directly in the DDF in the _internal_ variant is now placed in a separate file. This way, the DDF can be shared and the credentials file can be left out. The DDF will only contain the path to the credentials file.
+3. environment: The credentials will be loaded from environment variables. The DDF will only contain a special identifier that denotes the usage of environment variables.
 
 The JSON for connection data looks like this:
 
@@ -566,7 +563,7 @@ The properties have the following meanings:
 -   `driver`: The name of the driver. This is the same name as the NPM module that the driver resides in.
 -   `default` and `admin`: The two connection types, each with their own credentials and additional data. This system is described further below.
 -   `default|admin.credentials`: The credentials of that connection. This is described further below.
--   `default|admin.data`: An object that contains arbitrary data. This data is passed to the driver and can be used to configure it.
+-   `default|admin.data`: An object that contains arbitrary data. This data is passed to the driver and can be used to configure it. The accepted keys and their meanings are thusly driver dependent.
 
 #### 'default' AND 'admin' connections
 
@@ -576,35 +573,29 @@ The `admin` connection is optional and the `default` connection will be used if 
 
 ##### Credentials
 
-The JSON object for credentials has the following format:
+Similar to the public connection data object, does the credentials not include any required properties and consists of arbitrary keys and values. However, there are three predefined credential values that may or may not be used: `host`, `user` and `password`. These three values do not have a special meaning, but they are recommended to be used by drivers in oder to create a more consistent usage across drivers.
+
+As already explained before, there are three different ways to pass credentials to the DDF: `internal`, `external` and `environment`.
+
+When using the `internal` method, the credentials JSON will simply be placed in the DDF file in the property `databases.<database name>.connection.default|admin.credentials`. When using the `external` method, the credentials JSON will be placed in a separate file and `databases.<database name>.connection.default|admin.credentials` will contain the path to that file as a string. The path may be absolute or relative. When it is relative, then the path will be relative to the directory that the DDF is in. Lastly, when using the `environment` method, the following system is used:
+
+A single environment variable exists for each property that would have been part of the credentials object. The schema is `<prefix>_<key>`. The prefix is either `MERCURY_DEFAULT` or `MERCURY_ADMIN`, depending on the connection that the value is for (`default` or `admin`). The key is the same key that it would have been in the credentials object. For example, the following credentials object:
 
 ```json
 {
-    "host": "<hostname>",
-    "user": "<username>",
-    "password": "<password>",
-    "data": {
-        "key1": "value1",
-        "key2": "value2",
-        "keyN": "valueN"
-    }
+    "host": "my-host.com",
+    "user": "user",
+    "password": "password"
 }
 ```
 
-The meaning of `host`, `user` and `password` is very straight forward. `data` is an object that contains arbitrary, driver specific data in the same way that the aforementioned `default|admin.data` does. The difference between the two is, that this data object is supposed to contain any sensitive data that is not the host, username or password, otherwise there are no differences. In fact, the objects get merged before they get passed on to a driver, so the driver does not know which object is the source of a particular value. Also `host`, `user` and `password` are not inherently required a driver may or may not use them. They simply exist to keep the usage of Mercury as equivalent as possible, even if different drivers are used.
+would have the following environment variables (for the `default`) connection:
 
-Als already explained before, there are three different ways to pass credentials to the DDF: `internal`, `external` and `environment`.
+-   `MERCURY_DEFAULT_host`
+-   `MERCURY_DEFAULT_user`
+-   `MERCURY_DEFAULT_password`
 
-When using the `internal` method, the credentials JSON will simply be placed in the DDF file in the property `databases.<database name>.connection.default|admin.credentials`. When using the `external` method, the credentials JSON will be placed in a separate file and `databases.<database name>.connection.default|admin.credentials` will contain the path to that file. The file may be absolute or relative. When it is relative, then the path will be relative to the directory that the DDF is in. Lastly, when using the `environment` method, the following environment variables will be used:
-
--   `MERCURY_DEFAULT_HOST`: The equivalent to the property `default.host`.
--   `MERCURY_DEFAULT_USER`: The equivalent to the property `default.user`.
--   `MERCURY_DEFAULT_PASSWORD`: The equivalent to the property `default.password`.
--   `MERCURY_DEFAULT_DATA_*`: Used to pass data to the property `default.data`. The `*` is a placeholder of the actual key. For example, `MERCURY_DEFAULT_DATA_key1` would hold the value for the property `default.data.key1`. Keep in mind that these names are case sensitive.
--   `MERCURY_ADMIN_HOST`: The equivalent to the property `admin.host`.
--   `MERCURY_ADMIN_USER`: The equivalent to the property `admin.user`.
--   `MERCURY_ADMIN_PASSWORD`: The equivalent to the property `admin.password`.
--   `MERCURY_ADMIN_DATA_*`: Used to pass data to the property `admin.data`. The `*` is a placeholder of the actual key. For example, `MERCURY_ADMIN_DATA_key1` would hold the value for the property `admin.data.key1`. Keep in mind that these names are case sensitive.
+Environment variables can be used as credential provider by settings the value of `databases.<database name>.connection.default|admin.credentials` to `ENVIRONMENT`.
 
 ### Column Definitions
 
@@ -730,7 +721,7 @@ It is also important to note that it is possible to use type definitions inside 
 
 ### Partial Tables
 
-Partial tables are tables, that can be used to implement a kind of inheritance for tables. A partial table defines columns, primary key and constraints like any other table, but it will not create an actual table in the database. Instead, other, actual tables, can inherit from a partial table and will then gain all of the columns, primary keys and constraints from the partial table (in addition to the columns, primary keys and constraints that are defined by the table itself).
+Partial tables are tables that can be used to implement a kind of inheritance for tables. A partial table defines columns, primary key and constraints like any other table, but it will not create an actual table in the database. Instead, other, actual tables, can inherit from a partial table and will then gain all of the columns, primary keys and constraints from the partial table (in addition to the columns, primary keys and constraints that are defined by the table itself).
 
 The obvious advantage of partial tables is, that they save space and avoid redundancies (in a similar way that column and type definitions do). However, there is an additional benefit: each partial table will have a class in the client and the tables that inherit from another partial table will also inherit from the class of the respective partial table.
 
@@ -752,7 +743,7 @@ Partial tables are defined on database-level like this:
                         "extends": "@users-base",
                         "name": {
                             "type": {
-                                "base": "varchar",
+                                "base": "var-char",
                                 "length": 255
                             },
                             "nullable": false
@@ -851,7 +842,7 @@ The table modules can be found at the path `<js output directory>/<database name
 
 ### Inserting Rows
 
-Rows can be inserted into a table by using the static method `.insert()` in the class of the table that data is supposed to be inserted into. The method expects a single object that provides the values for the columns. For a table with the columns `id` (`int`) and `name` (`varchar`), the object would look like this:
+Rows can be inserted into a table by using the static method `.insert()` in the class of the table that data is supposed to be inserted into. The method expects a single object that provides the values for the columns. For a table with the columns `id` (`int`) and `name` (`var-char`), the object would look like this:
 
 ```ts
 {
@@ -868,7 +859,7 @@ Generally, all values in the aforementioned object are required. However, should
 
 #### Example
 
-For a table `users` (class name is `User`) with the columns `id` (`int` and no default), `name` (`varchar` and no default) and `creationDate` (`datetime` and default `NOW`), an insert statement could look like this:
+For a table `users` (class name is `User`) with the columns `id` (`int` and no default), `name` (`var-char` and no default) and `creationDate` (`date-time` and default `NOW`), an insert statement could look like this:
 
 ```ts
 const user = await User.insert({
@@ -904,7 +895,7 @@ const user = await User.findById(42);
 
 ### Querying Column Data
 
-After a reference to a table class has been acquired, that class provides getter and setter methods for each of its columns. For example, the column `name` (`varchar`) would have the getter `.getName()` and the setter `.setName()`.
+After a reference to a table class has been acquired, that class provides getter and setter methods for each of its columns. For example, the column `name` (`var-char`) would have the getter `.getName()` and the setter `.setName()`.
 
 Aside from these getters and setters for single columns, there are also the methods `.multiGet()` and `.multiSet()`. These can be used to get and set multiple column values at a time.
 
@@ -1031,9 +1022,7 @@ The return value of such a call can be passed to the `.from()` method. The follo
 An example that uses a left outer join would be:
 
 ```ts
-QueryBuilder.select(User.USER_ID, UserData.NAME).from(
-    User.leftOuterJoin(UserData).on(User.USER_ID, UserData.USER_ID)
-);
+QueryBuilder.select(User.USER_ID, UserData.NAME).from(User.leftOuterJoin(UserData).on(User.USER_ID, UserData.USER_ID));
 ```
 
 ##### Conditions
@@ -1123,7 +1112,7 @@ As already mentioned, column values can be updated with the method `.set()`. Thi
     </tr>
     <tr>
         <th>
-            <code>varchar</code>
+            <code>var-char</code>
         </th>
         <td>
             yes
@@ -1192,7 +1181,7 @@ As already mentioned, column values can be updated with the method `.set()`. Thi
     </tr>
     <tr>
         <th>
-            <code>smallint</code>
+            <code>small-int</code>
         </th>
         <td>
             <!---->
@@ -1238,7 +1227,7 @@ As already mentioned, column values can be updated with the method `.set()`. Thi
     </tr>
     <tr>
         <th>
-            <code>bigint</code>
+            <code>big-int</code>
         </th>
         <td>
             <!---->
@@ -1353,7 +1342,7 @@ As already mentioned, column values can be updated with the method `.set()`. Thi
     </tr>
     <tr>
         <th>
-            <code>datetime</code>
+            <code>date-time</code>
         </th>
         <td>
             <!---->
@@ -1468,7 +1457,7 @@ Conditions can be created using the column constants. Each of the constants cont
     </tr>
     <tr>
         <td rowspan="11">
-            <code>varchar</code><br/>
+            <code>var-char</code><br/>
             <code>char</code>
         </td>
         <td rowspan="3">
@@ -1632,9 +1621,9 @@ Conditions can be created using the column constants. Each of the constants cont
     </tr>
     <tr>
         <td rowspan="14">
-            <code>smallint</code><br/>
+            <code>small-int</code><br/>
             <code>int</code><br/>
-            <code>bigint</code><br/>
+            <code>big-int</code><br/>
             <code>float</code><br/>
             <code>double</code>
         </td>
@@ -1771,7 +1760,7 @@ Conditions can be created using the column constants. Each of the constants cont
         <td rowspan="14">
             <code>date</code><br/>
             <code>time</code><br/>
-            <code>datetime</code>
+            <code>date-time</code>
         </td>
         <td rowspan="3">
             <code>.equals()</code>
@@ -1977,19 +1966,19 @@ This will return an object that contains the result of the query. The object's l
 
 The result object of a select query contains a single property `rows`: It is an array and each element in it contains the selected columns of a row. Naturally, the layout of the row objects varies depending on the selected columns. However, the keys in that object are always the names of the columns (or the name that was given to the column with `.as()`) and the values are the respective values of the columns. Depending on the SQL datatype, the column values will have the following types (keep in mind that the type may also be `null`, depending on the nullableness of the column).
 
-| SQL Type   | JS / TS Type |
-| ---------- | ------------ |
-| `varchar`  | `string`     |
-| `char`     | `string`     |
-| `smallint` | `number`     |
-| `int`      | `number`     |
-| `bigint`   | `number`     |
-| `float`    | `number`     |
-| `double`   | `number`     |
-| `date`     | `Date`       |
-| `time`     | `Date`       |
-| `datetime` | `Date`       |
-| `boolean`  | `boolean`    |
+| SQL Type    | JS / TS Type |
+| ----------- | ------------ |
+| `var-char`  | `string`     |
+| `char`      | `string`     |
+| `small-int` | `number`     |
+| `int`       | `number`     |
+| `big-int`   | `number`     |
+| `float`     | `number`     |
+| `double`    | `number`     |
+| `date`      | `Date`       |
+| `time`      | `Date`       |
+| `date-time` | `Date`       |
+| `boolean`   | `boolean`    |
 
 ###### Example
 
