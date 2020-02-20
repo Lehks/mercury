@@ -7,6 +7,14 @@
         "$schema": {
             "type": "string"
         },
+        "includes": {
+            "type": "array",
+            "uniqueItems": true,
+            "additionalItems": false,
+            "items": {
+                "type": "string"
+            }
+        },
         "databases": {
             "type": "object",
             "additionalProperties": false,
