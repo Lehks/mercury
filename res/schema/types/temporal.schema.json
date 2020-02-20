@@ -1,0 +1,96 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "definitions": {
+        "temporal": {
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/date"
+                },
+                {
+                    "$ref": "#/definitions/time"
+                },
+                {
+                    "$ref": "#/definitions/dateTime"
+                }
+            ]
+        },
+        "date": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["base"],
+            "properties": {
+                "base": {
+                    "type": "string",
+                    "const": "date"
+                },
+                "default": {
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "format": "date"
+                        },
+                        {
+                            "type": "string",
+                            "const": "NOW"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                }
+            }
+        },
+        "time": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["base"],
+            "properties": {
+                "base": {
+                    "type": "string",
+                    "const": "time"
+                },
+                "default": {
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "format": "time"
+                        },
+                        {
+                            "type": "string",
+                            "const": "NOW"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                }
+            }
+        },
+        "dateTime": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["base"],
+            "properties": {
+                "base": {
+                    "type": "string",
+                    "const": "date-time"
+                },
+                "default": {
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        {
+                            "type": "string",
+                            "const": "NOW"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

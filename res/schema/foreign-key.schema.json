@@ -1,0 +1,39 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "definitions": {
+        "foreignKey": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["on", "references"],
+            "properties": {
+                "on": {
+                    "type": "string"
+                },
+                "references": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["table", "column"],
+                    "properties": {
+                        "table": {
+                            "type": "string"
+                        },
+                        "column": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "onUpdate": {
+                    "$ref": "#/definitions/triggerAction"
+                },
+                "onDelete": {
+                    "$ref": "#/definitions/triggerAction"
+                }
+            }
+        },
+        "triggerAction": {
+            "type": "string",
+            "enum": ["restrict", "cascade", "set-null", "no-action", "set-default"],
+            "default": "no-action"
+        }
+    }
+}

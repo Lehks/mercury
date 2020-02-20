@@ -1,0 +1,33 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "definitions": {
+        "enum": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["base", "literals"],
+            "properties": {
+                "base": {
+                    "type": "string",
+                    "const": "enum"
+                },
+                "literals": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "default": {
+                    "oneOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

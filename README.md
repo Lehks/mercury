@@ -579,7 +579,7 @@ As already explained before, there are three different ways to pass credentials 
 
 When using the `internal` method, the credentials JSON will simply be placed in the DDF file in the property `databases.<database name>.connection.default|admin.credentials`. When using the `external` method, the credentials JSON will be placed in a separate file and `databases.<database name>.connection.default|admin.credentials` will contain the path to that file as a string. The path may be absolute or relative. When it is relative, then the path will be relative to the directory that the DDF is in. Lastly, when using the `environment` method, the following system is used:
 
-A single environment variable exists for each property that would have been part of the credentials object. The schema is `<prefix>_<key>`. The prefix is either `MERCURY_DEFAULT` or `MERCURY_ADMIN`, depending on the connection that the value is for (`default` or `admin`). The key is the same key that it would have been in the credentials object. For example, the following credentials object:
+A single environment variable exists for each property that would have been part of the credentials object. The schema is `<prefix>_<database>_<key>`. The prefix is either `MERCURY_DEFAULT` or `MERCURY_ADMIN`, depending on the connection that the value is for (`default` or `admin`). The database is the name of the database that the credentials are for. Note that the name of the database may contain the character `-` which may not be allowed in an environment variable. Therefore, it is possible to substitute `-` with `_`. Lastly, key is the same key that it would have been in the credentials object. For example, the following credentials for the database `my-database`:
 
 ```json
 {
@@ -591,9 +591,9 @@ A single environment variable exists for each property that would have been part
 
 would have the following environment variables (for the `default`) connection:
 
--   `MERCURY_DEFAULT_host`
--   `MERCURY_DEFAULT_user`
--   `MERCURY_DEFAULT_password`
+-   `MERCURY_DEFAULT_my_database_host`
+-   `MERCURY_DEFAULT_my_database_user`
+-   `MERCURY_DEFAULT_my_database_password`
 
 Environment variables can be used as credential provider by settings the value of `databases.<database name>.connection.default|admin.credentials` to `ENVIRONMENT`.
 
@@ -721,11 +721,11 @@ It is also important to note that it is possible to use type definitions inside 
 
 ### Partial Tables
 
-Partial tables are tables that can be used to implement a kind of inheritance for tables. A partial table defines columns, primary key and constraints like any other table, but it will not create an actual table in the database. Instead, other, actual tables, can inherit from a partial table and will then gain all of the columns, primary keys and constraints from the partial table (in addition to the columns, primary keys and constraints that are defined by the table itself).
+Partial tables are tables that can be used to implement a kind of inheritance for tables. A partial table defines columns, primary key and constraints like any other table, but it will not create an actual table in the database. Instead, other, actual tables, can inherit from a partial table and will then gain all the columns, primary keys and constraints from the partial table (in addition to the columns, primary keys and constraints that are defined by the table itself).
 
 The obvious advantage of partial tables is, that they save space and avoid redundancies (in a similar way that column and type definitions do). However, there is an additional benefit: each partial table will have a class in the client and the tables that inherit from another partial table will also inherit from the class of the respective partial table.
 
-Partial tables are defined on database-level like this:
+Partial tables are defined on global-level like this:
 
 ```json
 {
@@ -750,19 +750,6 @@ Partial tables are defined on database-level like this:
                         }
                     }
                 }
-            },
-            "partialTables": {
-                "@users-base": {
-                    "columns": {
-                        "id": {
-                            "type": {
-                                "base": "int"
-                            },
-                            "nullable": false
-                        }
-                    },
-                    "primaryKey": "id"
-                }
             }
         }
     },
@@ -772,6 +759,19 @@ Partial tables are defined on database-level like this:
             "data": {
                 "generateTypings": true
             }
+        }
+    },
+    "partialTables": {
+        "@users-base": {
+            "columns": {
+                "id": {
+                    "type": {
+                        "base": "int"
+                    },
+                    "nullable": false
+                }
+            },
+            "primaryKey": "id"
         }
     }
 }
@@ -791,6 +791,10 @@ It is possible to create inheritance chains by making a partial table inherit fr
 
 It is not possible to have multi inheritance. This means, that a table can only inherit from a single partial table.
 
+#### Partial Tables In Different Databases
+
+Partial tables are defined on global level. However, each database will have its own class for the partial table. This means, that tables in different databases that extend the same partial table will still be incompatible and not share a parent class.
+
 ### Multiple Databases
 
 So far, each example only consisted of a single database. It is however possible for multiple databases to exist. These can simply be added to the `databases` object like this:
@@ -807,6 +811,44 @@ So far, each example only consisted of a single database. It is however possible
     }
 }
 ```
+
+### Including Other Database Definitions
+
+It is possible to include other DDFs into the main DDF. This is done via the property `includes` on global level. This property is a string array that contains the paths to the DDFs that should be included.
+
+For example:
+
+```json
+{
+    "includes": ["./my-other-database-definition.json"]
+}
+```
+
+is a DDF that simply includes the DDF `my-other-database-definition.json` from the same directory.
+
+These paths can be:
+
+1. absolute: regular absolute paths
+2. relative: regular relative paths relative to the directory that the DDF is in. Relative paths _must_ be preceded by `./`.
+3. NPM module: relative paths that are not preceded by `./` will be relative to the `node_modules` directory. In the case that the path points to a directory, Mercury will try to use the file `<directory>/database-definition.json`. This is only possible with NPM module paths and not absolute or relative paths. This can be used to include a DDF that was provided by a NPM package in the same way that the packages main module would be imported into a JavaScript file.
+
+In conclusion, the way that Mercury loads include files is very similar to the system that is used by NodeJS to resolve modules.
+
+#### Use-Cases
+
+Includes can be used to split up a single DDF into multiple, smaller and easier to read DDFs. It can also be used to include DDFs that have been provided by NPM packages. This way, a module can provide a library that can be used by others or it might also set up their required databases on their own without the using developers interaction.
+
+##### Providing Credentials
+
+Credentials can be passed to included DDFs via the external or environment methods. The paths to external credential files will still be relative to the main DDF, even if it is placed in a database in an included DDF. Environment credentials still work in the same way that they did before.
+
+#### Recursive Inclusion
+
+A DDF can include DDFs which may include other DDFs (which may again include other DDFs and so on). There is no restriction to this recursion, it is event possible to have circular dependencies (as in DDF A includes DDF B which includes DDF C which includes DDF A).
+
+##### Inclusion Details
+
+DDFs will be included by simply merging the included DDF object into the main DDF object. This means, that all names (such as type definition names, database names, etc.) still need to be unique across both DDFs.
 
 ## Usage
 
@@ -2145,67 +2187,32 @@ connection.query('SELECT * FROM Users WHERE name = ?', [name]);
 The method `.query()` also exists in the parameter object of the `.transaction()` and `.multiQuery()` methods.
 
 <!--
-- Setup
-    - Drivers
-    - DDF
-        - types
-            - base types
-            - default
-        - uniqueness
-        - null-ness
-    - mercury generate
-    - mercury setup-database
-       => basics now done, provide link
-    - Advanced DDF
-        - types
-        - compound primary keys
-        - Foreign keys
-        - constraints
-        - triggers
-        - meta settings
-            - sql / js output dir
-            - Name overrides
-        - credentials
-            - types
-                - internal
-                - external
-                - environment
-            - additional data
-            - regular + admin credentials
-        - Column definitions
-        - Type definitions
-        - partial tables
-        - multiple + default databases
-        - calling mercury programmatically <= TODO
-- Usage
-    - Classes generated from Tabes
-    - insert
-    - findById
-    - Query data
-        - single data query
-        - multi query data
-    - Setting data
-        - single setter
-        - multi setter
-    - compare objects
-    - check for existence
-    - delete
-    - query builder
-    - transactions
-    - low level database access (using DBAccessWrapper)
+
+Todo:
+
+- constraints
+- triggers
+
+- naming functions (JS function that can be called to return a name instead of hard-coding it)
+- query builder .groupBy()
+- query builder sub-queries
+
 - Creating drivers
+-->
 
+<!--
+processing phases:
 
-
-
-
-
-
-
-
-
-
-
-
+- include resolve
+- partial table resolve (move partial tables to database level)
+- partial table validation (circular include + existence)
+- column def resolve
+- type def resolve
+- name resolve
+    - modify plural table names to singular ones
+    - case-adjust all names
+- foreign key resolve
+    - make sure tables and columns exist
+    - make sure types match
 
 -->

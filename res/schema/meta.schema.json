@@ -1,0 +1,176 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "definitions": {
+        "globalMeta": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "clientOutputDir": {
+                    "type": "string",
+                    "default": "."
+                },
+                "sqlOutputDir": {
+                    "type": "string",
+                    "default": "."
+                },
+                "naming": {
+                    "$ref": "#/definitions/globalLevelNamingConventions"
+                },
+                "singularClassNames": {
+                    "type": "boolean",
+                    "default": true
+                }
+            },
+            "default": {}
+        },
+        "databaseMeta": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "rdbmsName": {
+                    "type": "string"
+                },
+                "moduleName": {
+                    "type": "string"
+                },
+                "naming": {
+                    "$ref": "#/definitions/databaseLevelNamingConventions"
+                },
+                "singularClassNames": {
+                    "type": "boolean",
+                    "default": true
+                }
+            },
+            "default": {}
+        },
+        "tableMeta": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "rdbmsName": {
+                    "type": "string"
+                },
+                "className": {
+                    "type": "string"
+                },
+                "moduleName": {
+                    "type": "string"
+                },
+                "naming": {
+                    "$ref": "#/definitions/tableLevelNamingConventions"
+                },
+                "singularClassNames": {
+                    "type": "boolean",
+                    "default": true
+                }
+            },
+            "default": {}
+        },
+        "namingConvention": {
+            "type": "string",
+            "enum": ["camel-case", "upper-camel-case", "snake-case", "minus-case", "constant-case"]
+        },
+        "globalLevelNamingConventions": {
+            "$ref": "#/definitions/databaseLevelNamingConventions"
+        },
+        "databaseLevelNamingConventions": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/tableLevelNamingConventions"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "rdbmsDatabaseNameConvention": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/namingConvention"
+                                },
+                                {
+                                    "default": "upper-camel-case"
+                                }
+                            ]
+                        },
+                        "moduleNameConvention": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/namingConvention"
+                                },
+                                {
+                                    "default": "minus-case"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "tableLevelNamingConventions": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/columnLevelNamingConventions"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "rdbmsTableNameConvention": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/namingConvention"
+                                },
+                                {
+                                    "default": "upper-camel-case"
+                                }
+                            ]
+                        },
+                        "classNameConvention": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/namingConvention"
+                                },
+                                {
+                                    "default": "upper-camel-case"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "columnLevelNamingConventions": {
+            "type": "object",
+            "properties": {
+                "rdbmsColumnNameConvention": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/namingConvention"
+                        },
+                        {
+                            "default": "camel-case"
+                        }
+                    ]
+                },
+                "methodNameConvention": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/namingConvention"
+                        },
+                        {
+                            "default": "camel-case"
+                        }
+                    ]
+                },
+                "constantNameConvention": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/namingConvention"
+                        },
+                        {
+                            "default": "constant-case"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}
