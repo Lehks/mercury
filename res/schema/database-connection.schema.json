@@ -1,0 +1,21 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "definitions": {
+        "connection": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["driver"],
+            "properties": {
+                "driver": {
+                    "type": "string"
+                },
+                "default": {
+                    "$ref": "connection-credentials.schema.json#/definitions/connectionCredentials"
+                },
+                "admin": {
+                    "$ref": "connection-credentials.schema.json#/definitions/connectionCredentials"
+                }
+            }
+        }
+    }
+}

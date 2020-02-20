@@ -18,6 +18,9 @@
                         "unique": {
                             "type": "boolean",
                             "default": false
+                        },
+                        "meta": {
+                            "$ref": "meta.schema.json#/definitions/columnMeta"
                         }
                     }
                 },

@@ -2214,5 +2214,8 @@ processing phases:
 - foreign key resolve
     - make sure tables and columns exist
     - make sure types match
+- type checks
+    - default null
+    - enum default literal
 
 -->

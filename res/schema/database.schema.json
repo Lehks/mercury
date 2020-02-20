@@ -6,20 +6,7 @@
             "additionalProperties": false,
             "properties": {
                 "connection": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "required": ["driver"],
-                    "properties": {
-                        "driver": {
-                            "type": "string"
-                        },
-                        "default": {
-                            "$ref": "connection-credentials.schema.json#/definitions/connectionCredentials"
-                        },
-                        "admin": {
-                            "$ref": "connection-credentials.schema.json#/definitions/connectionCredentials"
-                        }
-                    }
+                    "$ref": "database-connection.schema.json#/definitions/connection"
                 },
                 "meta": {
                     "$ref": "meta.schema.json#/definitions/databaseMeta"

@@ -11,6 +11,7 @@
             "type": "array",
             "uniqueItems": true,
             "additionalItems": false,
+            "default": [],
             "items": {
                 "type": "string"
             }

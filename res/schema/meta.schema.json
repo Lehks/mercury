@@ -66,6 +66,28 @@
             },
             "default": {}
         },
+        "columnMeta": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "rdbmsName": {
+                    "type": "string"
+                },
+                "getterName": {
+                    "type": "string"
+                },
+                "setterName": {
+                    "type": "string"
+                },
+                "constantName": {
+                    "type": "string"
+                },
+                "naming": {
+                    "$ref": "#/definitions/columnLevelNamingConventions"
+                }
+            },
+            "default": {}
+        },
         "namingConvention": {
             "type": "string",
             "enum": ["camel-case", "upper-camel-case", "snake-case", "minus-case", "constant-case"]
