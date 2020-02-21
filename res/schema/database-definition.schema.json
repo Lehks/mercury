@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "database-definition.schema.json",
+    "$id": "http://lehks.github.com/mercury-js/schemas/database-definition.schema.json",
     "type": "object",
     "additionalProperties": false,
     "properties": {

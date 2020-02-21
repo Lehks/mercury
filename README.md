@@ -2203,6 +2203,7 @@ Todo:
 <!--
 processing phases:
 
+- validation
 - include resolve
 - partial table resolve (move partial tables to database level)
 - partial table validation (circular include + existence)
