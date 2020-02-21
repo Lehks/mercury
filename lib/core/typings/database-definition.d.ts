@@ -1,18 +1,26 @@
 import Meta from './meta';
 import { IDatabase } from './database';
+import { IColumn } from './column';
+import { ITable } from './table';
+import { IType } from './type';
 
 export interface IDatabaseDefinition {
+    _ddfPath: string;
     schema: string;
     includes: string[];
     databases: {
         [key: string]: IDatabase;
     };
     meta: Meta.IGlobalMeta;
-    columnDefinitions: IColumnDefinitions;
-    typeDefinitions: ITypeDefinitions;
-    partialTables: IPartialTables;
-}
+    columnDefinitions: {
+        [key: string]: IColumn;
+    };
 
-export interface IColumnDefinitions {}
-export interface ITypeDefinitions {}
-export interface IPartialTables {}
+    typeDefs: {
+        [key: string]: IType;
+    };
+
+    partialTables: {
+        [key: string]: ITable;
+    };
+}

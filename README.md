@@ -848,7 +848,7 @@ A DDF can include DDFs which may include other DDFs (which may again include oth
 
 ##### Inclusion Details
 
-DDFs will be included by simply merging the included DDF object into the main DDF object. This means, that all names (such as type definition names, database names, etc.) still need to be unique across both DDFs.
+DDFs will be included by simply merging the included DDF object into the main DDF object. This means, that all names (such as type definition names, database names, etc.) still need to be unique across both DDFs. The global meta will _not_ be merged, any meta definitions in an included DDF will be ignored.
 
 ## Usage
 
