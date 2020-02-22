@@ -19,28 +19,12 @@ namespace IncludeResolver {
             if (processedIncludes.includes(includePath)) {
                 processedIncludes.push(includePath);
 
-                const include = Loader.load(resolveIncludePath(includePath, ddf));
+                const include = Loader.load(includePath, path.dirname(ddf._ddfPath));
                 const validated = await Validator.validateDDF(include);
                 await resolveIncludesWrapper(validated, processedIncludes);
 
                 mergeInto(validated, ddf);
             }
-        }
-    }
-
-    function resolveIncludePath(includePath: string, ddf: IDatabaseDef): string {
-        if (path.isAbsolute(includePath)) {
-            // absolute paths can be returned as-is
-            return includePath;
-        } else if (includePath.startsWith('.')) {
-            // relative paths will be resolved relative to the location of the ddf that they were included from
-            return path.resolve(path.dirname(ddf._ddfPath), includePath);
-        } else if (!includePath.includes('/') && !includePath.includes('\\')) {
-            // module names will replaced with <module name>/database-definition.json
-            return path.join(includePath, 'database-definition.json');
-        } else {
-            // regular module-relative paths can be returned as-is
-            return includePath;
         }
     }
 
