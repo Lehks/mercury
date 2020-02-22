@@ -1,6 +1,8 @@
 import Ajv from 'ajv';
 import path from 'path';
 import { IDatabaseDefinition } from '../typings/database-definition';
+import ErrorBase from '../error-base';
+import MultiError from '../multi-error';
 
 namespace Validator {
     // __dirname / pre-processing / core / lib / dist
@@ -36,7 +38,7 @@ namespace Validator {
         if (valid) {
             return ddf;
         } else {
-            throw ajv.errors;
+            throw new MultiError(...ajv.errors!.map(e => new ValidationError(e)));
         }
     }
 
@@ -53,6 +55,15 @@ namespace Validator {
 
     function getValidateFunction(ajv: Ajv.Ajv): Ajv.ValidateFunction {
         return ajv.getSchema('http://lehks.github.com/mercury-js/schemas/database-definition.schema.json');
+    }
+
+    export class ValidationError extends ErrorBase {
+        public readonly errorObject: Ajv.ErrorObject;
+
+        public constructor(error: Ajv.ErrorObject) {
+            super(ErrorBase.Code.VALIDATION_ERROR, error.message!);
+            this.errorObject = error;
+        }
     }
 }
 
