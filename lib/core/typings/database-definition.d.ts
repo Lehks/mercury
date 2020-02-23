@@ -16,7 +16,7 @@ export interface IDatabaseDefinition {
         [key: string]: IColumn;
     };
 
-    typeDefs: {
+    typeDefinitions: {
         [key: string]: IType;
     };
 

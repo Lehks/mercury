@@ -29,16 +29,16 @@ namespace Validator {
         './database.schema.json'
     ];
 
-    export async function validateDDF(ddf: any): Promise<IDatabaseDefinition> {
+    export async function validateDDF(ddf: IDatabaseDefinition) {
         const ajv = await setupAjv();
         const validate = getValidateFunction(ajv);
 
         const valid = validate(ddf);
 
         if (valid) {
-            return ddf;
+            Object.assign(ddf, valid);
         } else {
-            throw new MultiError(...ajv.errors!.map(e => new ValidationError(e)));
+            throw new MultiError(...validate.errors!.map(e => new ValidationError(e)));
         }
     }
 

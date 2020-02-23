@@ -7,6 +7,9 @@
         "$schema": {
             "type": "string"
         },
+        "_ddfPath": {
+            "type": "string"
+        },
         "includes": {
             "type": "array",
             "uniqueItems": true,

@@ -3,11 +3,16 @@ import path from 'path';
 import ErrorBase from '../error-base';
 
 namespace Loader {
-    export async function load(ddfPath: string, relativePath: string = process.cwd()): Promise<any> {
+    export async function load(ddfPath: string, relativePath: string = process.cwd()): Promise<IDatabaseDefinition> {
         try {
-            const ret = (await import(resolveIncludePath(ddfPath, relativePath))) as IDatabaseDefinition;
+            const actualPath = resolveIncludePath(ddfPath, relativePath);
+
+            const ret = (await import(actualPath)) as IDatabaseDefinition;
+
+            // property inserted by import()
             delete (ret as any).default;
-            ret._ddfPath = ddfPath;
+
+            ret._ddfPath = actualPath;
             return ret;
         } catch (error) {
             throw new FileNotFoundError(ddfPath);

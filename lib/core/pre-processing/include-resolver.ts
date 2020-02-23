@@ -9,21 +9,24 @@ namespace IncludeResolver {
     type IDatabaseDef = IDatabaseDefinition;
 
     export async function resolveIncludes(ddf: IDatabaseDef) {
-        const processedIncludes = [] as string[];
+        // start with _ddfPath in array to avoid the re-inclusion of the root ddf
+        const processedIncludes = [ddf._ddfPath] as string[];
 
         return resolveIncludesWrapper(ddf, processedIncludes);
     }
 
     async function resolveIncludesWrapper(ddf: IDatabaseDef, processedIncludes: string[]) {
         for (const includePath of ddf.includes) {
-            if (processedIncludes.includes(includePath)) {
-                processedIncludes.push(includePath);
+            // already load ddf to access the _ddfPath
+            const includeDDF = await Loader.load(includePath, path.dirname(ddf._ddfPath));
 
-                const include = Loader.load(includePath, path.dirname(ddf._ddfPath));
-                const validated = await Validator.validateDDF(include);
-                await resolveIncludesWrapper(validated, processedIncludes);
+            if (!processedIncludes.includes(includeDDF._ddfPath)) {
+                processedIncludes.push((includeDDF as IDatabaseDef)._ddfPath);
 
-                mergeInto(validated, ddf);
+                await Validator.validateDDF(includeDDF);
+                await resolveIncludesWrapper(includeDDF, processedIncludes);
+
+                mergeInto(includeDDF, ddf);
             }
         }
     }
@@ -71,8 +74,8 @@ namespace IncludeResolver {
     }
 
     function checkDuplicateTypeDefinitions(source: IDatabaseDef, destination: IDatabaseDef, errors: ErrorBase[]) {
-        const sourceTypeDefs = Object.keys(source.typeDefs);
-        const destinationTypeDefs = Object.keys(destination.typeDefs);
+        const sourceTypeDefs = Object.keys(source.typeDefinitions);
+        const destinationTypeDefs = Object.keys(destination.typeDefinitions);
 
         const duplicateTypeDefs = sourceTypeDefs.filter(def => destinationTypeDefs.includes(def));
 
@@ -103,8 +106,8 @@ namespace IncludeResolver {
             destination.columnDefinitions[sourceColDefs] = source.columnDefinitions[sourceColDefs];
         }
 
-        for (const sourceTypeDefs in source.typeDefs) {
-            destination.typeDefs[sourceTypeDefs] = source.typeDefs[sourceTypeDefs];
+        for (const sourceTypeDefs in source.typeDefinitions) {
+            destination.typeDefinitions[sourceTypeDefs] = source.typeDefinitions[sourceTypeDefs];
         }
 
         for (const sourcePartialTables in source.partialTables) {
