@@ -29,7 +29,7 @@ namespace Validator {
         './database.schema.json'
     ];
 
-    export async function validateDDF(ddf: IDatabaseDefinition) {
+    export async function run(ddf: IDatabaseDefinition) {
         const ajv = await setupAjv();
         const validate = getValidateFunction(ajv);
 

@@ -8,14 +8,14 @@ import path from 'path';
 namespace IncludeResolver {
     type IDatabaseDef = IDatabaseDefinition;
 
-    export async function resolveIncludes(ddf: IDatabaseDef) {
+    export async function run(ddf: IDatabaseDef) {
         // start with _ddfPath in array to avoid the re-inclusion of the root ddf
         const processedIncludes = [ddf._ddfPath] as string[];
 
-        return resolveIncludesWrapper(ddf, processedIncludes);
+        return runWrapper(ddf, processedIncludes);
     }
 
-    async function resolveIncludesWrapper(ddf: IDatabaseDef, processedIncludes: string[]) {
+    async function runWrapper(ddf: IDatabaseDef, processedIncludes: string[]) {
         for (const includePath of ddf.includes) {
             // already load ddf to access the _ddfPath
             const includeDDF = await Loader.load(includePath, path.dirname(ddf._ddfPath));
@@ -23,8 +23,8 @@ namespace IncludeResolver {
             if (!processedIncludes.includes(includeDDF._ddfPath)) {
                 processedIncludes.push((includeDDF as IDatabaseDef)._ddfPath);
 
-                await Validator.validateDDF(includeDDF);
-                await resolveIncludesWrapper(includeDDF, processedIncludes);
+                await Validator.run(includeDDF);
+                await runWrapper(includeDDF, processedIncludes);
 
                 mergeInto(includeDDF, ddf);
             }
