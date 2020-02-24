@@ -1,4 +1,5 @@
 export interface IForeignKey {
+    _name: string;
     on: string;
     references: {
         table: string;

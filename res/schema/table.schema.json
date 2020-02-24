@@ -27,7 +27,8 @@
                     "$ref": "primary-key.schema.json#/definitions/primaryKey"
                 },
                 "constraints": {
-                    "$ref": "constraints.schema.json#/definitions/constraints"
+                    "$ref": "constraints.schema.json#/definitions/constraints",
+                    "default": {}
                 }
             }
         }

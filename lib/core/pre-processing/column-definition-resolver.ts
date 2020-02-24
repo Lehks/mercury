@@ -29,7 +29,6 @@ namespace ColumnDefinitionResolver {
             const column = entry[1];
 
             if (typeof column === 'string') {
-                console.log(column);
                 const columnDefinition = ddf.columnDefinitions[column];
 
                 if (columnDefinition) {

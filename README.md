@@ -2209,14 +2209,14 @@ processing phases:
 - partial table validation (circular include + existence)
 - column def resolve
 - type def resolve
-- name resolve
-    - modify plural table names to singular ones
-    - case-adjust all names
 - foreign key resolve
     - make sure tables and columns exist
     - make sure types match
 - type checks
     - default null
     - enum default literal
+- name resolve
+    - modify plural table names to singular ones
+    - case-adjust all names
 
 -->
