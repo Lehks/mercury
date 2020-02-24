@@ -18,7 +18,9 @@ namespace ErrorBase {
         VALIDATION_ERROR = 6,
         INVALID_PARTIAL_TABLE = 7,
         CIRCULAR_INHERITANCE = 8,
-        DUPLICATE_COLUMN = 9
+        DUPLICATE_COLUMN = 9,
+        INVALID_COLUMN_DEFINITION = 10,
+        INVALID_TYPE_DEFINITION = 11
     }
 }
 
