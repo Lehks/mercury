@@ -2211,7 +2211,7 @@ processing phases:
 - type def resolve
 - foreign key resolve
     - make sure tables and columns exist
-    - make sure types match
+    - make sure types match TODO
 - type checks
     - default null
     - enum default literal

@@ -5,4 +5,5 @@ import { IEnum } from './types/enum';
 import { ITemporal } from './types/temporal';
 import { IBoolean } from './types/boolean';
 
-export type IType = string | IInteger | IFloatingPoint | IString | IEnum | ITemporal | IBoolean;
+export type IType = string | IConcreteType;
+export type IConcreteType = IInteger | IFloatingPoint | IString | IEnum | ITemporal | IBoolean;
