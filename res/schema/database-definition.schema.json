@@ -30,7 +30,18 @@
             }
         },
         "meta": {
-            "$ref": "meta.schema.json#/definitions/globalMeta"
+            "$ref": "meta.schema.json#/definitions/globalMeta",
+            "default": {
+                "naming": {
+                    "rdbmsDatabaseNameConvention": "minus-case",
+                    "rdbmsTableNameConvention": "minus-case",
+                    "rdbmsColumnNameConvention": "snake-case",
+                    "classNameConvention": "upper-camel-case",
+                    "moduleNameConvention": "minus-case",
+                    "constantNameConvention": "constant-case",
+                    "methodNameConvention": "camel-case"
+                }
+            }
         },
         "columnDefinitions": {
             "type": "object",

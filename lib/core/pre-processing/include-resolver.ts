@@ -4,6 +4,7 @@ import ErrorBase from '../error-base';
 import Loader from './loader';
 import MultiError from '../multi-error';
 import path from 'path';
+import Meta from '../typings/meta';
 
 namespace IncludeResolver {
     type IDatabaseDef = IDatabaseDefinition;
@@ -24,11 +25,39 @@ namespace IncludeResolver {
                 processedIncludes.push((includeDDF as IDatabaseDef)._ddfPath);
 
                 await Validator.run(includeDDF);
+                removeMetaObjects(includeDDF);
                 await runWrapper(includeDDF, processedIncludes);
 
                 mergeInto(includeDDF, ddf);
             }
         }
+    }
+
+    // override all meta objects in included DDFs with {naming:{}}
+    function removeMetaObjects(ddf: IDatabaseDef) {
+        ddf.meta = {
+            naming: {} as Meta.IGlobalLevelNamingConventions
+        } as Meta.IGlobalMeta;
+
+        Object.values(ddf.databases).forEach(database => {
+            database.meta = {
+                naming: {} as Meta.IDatabaseLevelNamingConventions
+            } as Meta.IDatabaseMeta;
+
+            Object.values(database.tables).forEach(table => {
+                table.meta = {
+                    naming: {} as Meta.ITableLevelNamingConventions
+                } as Meta.ITableMeta;
+
+                Object.values(table.columns).forEach(column => {
+                    if (typeof column !== 'string') {
+                        column.meta = {
+                            naming: {} as Meta.IColumnLevelNamingConventions
+                        } as Meta.IColumnMeta;
+                    }
+                });
+            });
+        });
     }
 
     function mergeInto(source: IDatabaseDef, destination: IDatabaseDef) {

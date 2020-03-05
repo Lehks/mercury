@@ -10,7 +10,8 @@
                     "$ref": "database-connection.schema.json#/definitions/connection"
                 },
                 "meta": {
-                    "$ref": "meta.schema.json#/definitions/databaseMeta"
+                    "$ref": "meta.schema.json#/definitions/databaseMeta",
+                    "default": {}
                 },
                 "tables": {
                     "type": "object",

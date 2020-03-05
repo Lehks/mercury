@@ -26,7 +26,6 @@ namespace TypeDefinitionResolver {
     }
 
     function resolveForeignKeysInTable(ddf: IDatabaseDefinition, database: IDatabase, table: ITable) {
-        console.log(table);
         Object.entries(table.constraints.foreignKeys).forEach(entry => {
             const name = entry[0];
             const foreignKey = entry[1];

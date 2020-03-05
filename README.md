@@ -515,7 +515,7 @@ These properties control the naming conventions:
 1. `naming.rdbmsDatabaseNameConvention`: The name of the database in the RDBMS. Defaults to `upper-camel-case`. Does not exist on table and column level.
 2. `naming.rdbmsTableNameConvention`: The name of the tables in a database. Defaults to `upper-camel-case`. Does not exist on column level.
 3. `naming.rdbmsColumnNameConvention`: The name of the columns in a database. Defaults to `camel-case`.
-4. `naming.moduleNameConvention`: The name of all modules in a client (and also the name of directories). Defaults to `minus-case`. Does not exist on table or column level.
+4. `naming.moduleNameConvention`: The name of all modules in a client (and also the name of directories). Defaults to `minus-case`. Does not exist on column level.
 5. `naming.classNameConvention`: The name of all classes in a client. Defaults to `upper-camel-case`. Does not exist on column level.
 6. `naming.methodNameConvention`: The name of all methods in a client class (including getters and setters). Defaults to `camel-case`.
 7. `naming.constantNameConvention`: The name of the column constants. Defaults to `constant-case`.

@@ -15,14 +15,14 @@
                     "default": "."
                 },
                 "naming": {
-                    "$ref": "#/definitions/globalLevelNamingConventions"
+                    "$ref": "#/definitions/globalLevelNamingConventions",
+                    "default": {}
                 },
                 "singularClassNames": {
                     "type": "boolean",
                     "default": true
                 }
-            },
-            "default": {}
+            }
         },
         "databaseMeta": {
             "type": "object",
@@ -35,14 +35,14 @@
                     "type": "string"
                 },
                 "naming": {
-                    "$ref": "#/definitions/databaseLevelNamingConventions"
+                    "$ref": "#/definitions/databaseLevelNamingConventions",
+                    "default": {}
                 },
                 "singularClassNames": {
                     "type": "boolean",
                     "default": true
                 }
-            },
-            "default": {}
+            }
         },
         "tableMeta": {
             "type": "object",
@@ -58,14 +58,14 @@
                     "type": "string"
                 },
                 "naming": {
-                    "$ref": "#/definitions/tableLevelNamingConventions"
+                    "$ref": "#/definitions/tableLevelNamingConventions",
+                    "default": {}
                 },
                 "singularClassNames": {
                     "type": "boolean",
                     "default": true
                 }
-            },
-            "default": {}
+            }
         },
         "columnMeta": {
             "type": "object",
@@ -84,10 +84,10 @@
                     "type": "string"
                 },
                 "naming": {
-                    "$ref": "#/definitions/columnLevelNamingConventions"
+                    "$ref": "#/definitions/columnLevelNamingConventions",
+                    "default": {}
                 }
-            },
-            "default": {}
+            }
         },
         "namingConvention": {
             "type": "string",
@@ -108,19 +108,6 @@
                             "allOf": [
                                 {
                                     "$ref": "#/definitions/namingConvention"
-                                },
-                                {
-                                    "default": "upper-camel-case"
-                                }
-                            ]
-                        },
-                        "moduleNameConvention": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/namingConvention"
-                                },
-                                {
-                                    "default": "minus-case"
                                 }
                             ]
                         }
@@ -140,9 +127,6 @@
                             "allOf": [
                                 {
                                     "$ref": "#/definitions/namingConvention"
-                                },
-                                {
-                                    "default": "upper-camel-case"
                                 }
                             ]
                         },
@@ -150,9 +134,13 @@
                             "allOf": [
                                 {
                                     "$ref": "#/definitions/namingConvention"
-                                },
+                                }
+                            ]
+                        },
+                        "moduleNameConvention": {
+                            "allOf": [
                                 {
-                                    "default": "upper-camel-case"
+                                    "$ref": "#/definitions/namingConvention"
                                 }
                             ]
                         }
@@ -167,9 +155,6 @@
                     "allOf": [
                         {
                             "$ref": "#/definitions/namingConvention"
-                        },
-                        {
-                            "default": "camel-case"
                         }
                     ]
                 },
@@ -177,9 +162,6 @@
                     "allOf": [
                         {
                             "$ref": "#/definitions/namingConvention"
-                        },
-                        {
-                            "default": "camel-case"
                         }
                     ]
                 },
@@ -187,9 +169,6 @@
                     "allOf": [
                         {
                             "$ref": "#/definitions/namingConvention"
-                        },
-                        {
-                            "default": "constant-case"
                         }
                     ]
                 }

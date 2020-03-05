@@ -5,31 +5,35 @@
         "column": {
             "oneOf": [
                 {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "required": ["type"],
-                    "properties": {
-                        "type": {
-                            "$ref": "type.schema.json#/definitions/type"
-                        },
-                        "nullable": {
-                            "type": "boolean",
-                            "default": false
-                        },
-                        "unique": {
-                            "type": "boolean",
-                            "default": false
-                        },
-                        "meta": {
-                            "$ref": "meta.schema.json#/definitions/columnMeta"
-                        }
-                    }
+                    "$ref": "#/definitions/concreteTable"
                 },
                 {
                     "type": "string",
                     "pattern": "#[a-zA-Z_-][a-zA-Z0-9_-]*"
                 }
             ]
+        },
+        "concreteTable": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type"],
+            "properties": {
+                "type": {
+                    "$ref": "type.schema.json#/definitions/type"
+                },
+                "nullable": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "unique": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "meta": {
+                    "$ref": "meta.schema.json#/definitions/columnMeta",
+                    "default": {}
+                }
+            }
         }
     }
 }
