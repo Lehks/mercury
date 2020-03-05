@@ -6,7 +6,7 @@ import MultiError from '../multi-error';
 import { IForeignKey } from '../typings/foreign-key';
 import { IDatabase } from '../typings/database';
 
-namespace TypeDefinitionResolver {
+namespace ForeignKeyResolver {
     export async function run(ddf: IDatabaseDefinition) {
         const errors = [] as ErrorBase[];
 
@@ -133,4 +133,4 @@ namespace TypeDefinitionResolver {
     }
 }
 
-export = TypeDefinitionResolver;
+export = ForeignKeyResolver;
