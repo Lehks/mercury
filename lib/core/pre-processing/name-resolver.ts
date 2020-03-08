@@ -4,18 +4,22 @@ import { ITable } from '../typings/table';
 import Meta from '../typings/meta';
 import { camelCase, constantCase, pascalCase, snakeCase, paramCase } from 'change-case';
 import { IDatabase } from '../typings/database';
+import logger from '../logger';
 
 namespace NameResolver {
     export async function run(ddf: IDatabaseDefinition) {
         Object.entries(ddf.databases).forEach(databaseEntry => {
+            logger.debug(`Resolving names in database '${databaseEntry[0]}'.`);
             mergeIntoDatabaseConventions(ddf.meta.naming, databaseEntry[1].meta.naming);
             resolveDatabaseNames(databaseEntry[1], databaseEntry[0]);
 
             Object.entries(databaseEntry[1].tables).forEach(tableEntry => {
+                logger.debug(`Resolving names in table '${tableEntry[0]}'.`);
                 runForTable(databaseEntry[1], tableEntry[1], tableEntry[0]);
             });
 
             Object.entries(databaseEntry[1]._partialTables).forEach(tableEntry => {
+                logger.debug(`Resolving names in partial table '${tableEntry[0]}'.`);
                 runForTable(databaseEntry[1], tableEntry[1], tableEntry[0]);
             });
         });
@@ -26,6 +30,7 @@ namespace NameResolver {
         resolveTableNames(table, tableName);
 
         Object.entries(table.columns).forEach(columnEntry => {
+            logger.debug(`Resolving names in column '${columnEntry[0]}'.`);
             const concreteColumn = columnEntry[1] as IConcreteColumn;
 
             mergeIntoColumnConventions(table.meta.naming, concreteColumn.meta.naming);

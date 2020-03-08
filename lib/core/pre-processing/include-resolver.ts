@@ -5,6 +5,7 @@ import Loader from './loader';
 import MultiError from '../multi-error';
 import path from 'path';
 import Meta from '../typings/meta';
+import logger from '../logger';
 
 namespace IncludeResolver {
     type IDatabaseDef = IDatabaseDefinition;
@@ -18,17 +19,23 @@ namespace IncludeResolver {
 
     async function runWrapper(ddf: IDatabaseDef, processedIncludes: string[]) {
         for (const includePath of ddf.includes) {
+            logger.debug(`Resolving include file '${includePath}'.`);
+
             // already load ddf to access the _ddfPath
             const includeDDF = await Loader.load(includePath, path.dirname(ddf._ddfPath));
 
             if (!processedIncludes.includes(includeDDF._ddfPath)) {
+                logger.debug('Include file has not yet been processed.');
                 processedIncludes.push((includeDDF as IDatabaseDef)._ddfPath);
 
+                logger.debug('Validating include file.');
                 await Validator.run(includeDDF);
                 removeMetaObjects(includeDDF);
                 await runWrapper(includeDDF, processedIncludes);
 
                 mergeInto(includeDDF, ddf);
+            } else {
+                logger.debug('Include file has already been processed.');
             }
         }
     }

@@ -5,15 +5,17 @@ import _ from 'lodash';
 import MultiError from '../multi-error';
 import { IForeignKey } from '../typings/foreign-key';
 import { IDatabase } from '../typings/database';
+import logger from '../logger';
 
 namespace ForeignKeyResolver {
     export async function run(ddf: IDatabaseDefinition) {
         const errors = [] as ErrorBase[];
 
-        Object.values(ddf.databases).forEach(database => {
-            Object.values(database.tables).forEach(table => {
+        Object.entries(ddf.databases).forEach(databaseEntry => {
+            logger.debug(`Resolving foreign keys in database '${databaseEntry[0]}'.`);
+            Object.entries(databaseEntry[1].tables).forEach(tableEntry => {
                 try {
-                    resolveForeignKeysInTable(ddf, database, table);
+                    resolveForeignKeysInTable(ddf, databaseEntry[1], tableEntry[1], tableEntry[0]);
                 } catch (error) {
                     errors.push(error);
                 }
@@ -25,8 +27,16 @@ namespace ForeignKeyResolver {
         }
     }
 
-    function resolveForeignKeysInTable(ddf: IDatabaseDefinition, database: IDatabase, table: ITable) {
+    function resolveForeignKeysInTable(
+        ddf: IDatabaseDefinition,
+        database: IDatabase,
+        table: ITable,
+        tableName: string
+    ) {
+        logger.debug(`Resolving foreign keys in table '${tableName}'.`);
+
         Object.entries(table.constraints.foreignKeys).forEach(entry => {
+            logger.debug(`Resolving foreign key '${entry[0]}'.`);
             const name = entry[0];
             const foreignKey = entry[1];
 
@@ -38,7 +48,7 @@ namespace ForeignKeyResolver {
         });
 
         if (table._parent) {
-            resolveForeignKeysInTable(ddf, database, table._parent);
+            resolveForeignKeysInTable(ddf, database, table._parent, table._parent._name);
         }
     }
 

@@ -3,15 +3,18 @@ import { ITable } from '../typings/table';
 import ErrorBase from '../error-base';
 import _ from 'lodash';
 import MultiError from '../multi-error';
+import logger from '../logger';
 
 namespace ColumnDefinitionResolver {
     export async function run(ddf: IDatabaseDefinition) {
         const errors = [] as ErrorBase[];
 
-        Object.values(ddf.databases).forEach(database => {
-            Object.values(database.tables).forEach(table => {
+        Object.entries(ddf.databases).forEach(databaseEntry => {
+            logger.debug(`Resolving columns in database '${databaseEntry[0]}'.`);
+            Object.entries(databaseEntry[1].tables).forEach(tableEntry => {
                 try {
-                    resolveColumnsInTable(ddf, table);
+                    logger.debug(`Resolving columns in table '${tableEntry[0]}'.`);
+                    resolveColumnsInTable(ddf, tableEntry[1]);
                 } catch (error) {
                     errors.push(error);
                 }
@@ -29,6 +32,7 @@ namespace ColumnDefinitionResolver {
             const column = entry[1];
 
             if (typeof column === 'string') {
+                logger.debug(`Resolving column '${name}' to '${column}'.`);
                 const columnDefinition = ddf.columnDefinitions[column];
 
                 if (columnDefinition) {
@@ -36,6 +40,8 @@ namespace ColumnDefinitionResolver {
                 } else {
                     throw new InvalidColumDefinition(column);
                 }
+            } else {
+                logger.debug(`The column '${name}' does not need to be resolved.`);
             }
         });
 

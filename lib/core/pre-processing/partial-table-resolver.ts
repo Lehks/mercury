@@ -4,6 +4,7 @@ import { ITable } from '../typings/table';
 import MultiError from '../multi-error';
 import _ from 'lodash';
 import { IDatabase } from '../typings/database';
+import logger from '../logger';
 
 namespace PartialTableResolver {
     type Indices = {
@@ -14,15 +15,18 @@ namespace PartialTableResolver {
     export async function run(ddf: IDatabaseDefinition) {
         const errors = [] as ErrorBase[];
 
-        Object.values(ddf.databases).forEach(database => {
-            database._partialTables = {};
+        Object.entries(ddf.databases).forEach(databaseEntry => {
+            logger.debug(`Resolving partial tables in database '${databaseEntry[0]}'.`);
 
-            Object.entries(database.tables).forEach(entry => {
+            databaseEntry[1]._partialTables = {};
+
+            Object.entries(databaseEntry[1].tables).forEach(tableEntry => {
+                logger.debug(`Resolving parent table for table '${tableEntry[0]}'.`);
                 try {
                     const children = [] as string[];
                     const columns = [] as string[];
 
-                    processParentTable(ddf, database, entry[0], entry[1], { children, columns });
+                    processParentTable(ddf, databaseEntry[1], tableEntry[0], tableEntry[1], { children, columns });
                 } catch (error) {
                     errors.push(error);
                 }
@@ -34,7 +38,7 @@ namespace PartialTableResolver {
         }
     }
 
-    async function processParentTable(
+    function processParentTable(
         ddf: IDatabaseDefinition,
         database: IDatabase,
         tableName: string,
@@ -43,23 +47,31 @@ namespace PartialTableResolver {
     ) {
         table._name = tableName;
 
+        // use !table.parent to avoid re-processing of partial tables
         if (table.extends) {
-            checkForCircularInheritance(indices, table);
+            if (!table._parent) {
+                logger.debug(`Parent table is '${table.extends}'.`);
+                checkForCircularInheritance(indices, table);
 
-            addPartialToDatabaseIndex(ddf, database, table, indices);
+                addPartialToDatabaseIndex(ddf, database, table, indices);
 
-            const parentTable = database._partialTables[table.extends];
+                const parentTable = database._partialTables[table.extends];
 
-            if (parentTable) {
-                indices.children.push(table.extends);
+                if (parentTable) {
+                    indices.children.push(table.extends);
 
-                table._parent = parentTable;
+                    table._parent = parentTable;
+                } else {
+                    throw new InvalidPartialTableError(table.extends, tableName);
+                }
             } else {
-                throw new InvalidPartialTableError(table.extends, tableName);
+                logger.debug('Parent table has already been processed.');
             }
+        } else {
+            logger.debug('Table does not have a parent.');
         }
 
-        // run this outside the if to also check tables that
+        // needs to be run outside the if stmt
         checkForDuplicateColumns(table, indices);
     }
 
@@ -80,6 +92,13 @@ namespace PartialTableResolver {
             if (ddfParentTable) {
                 processParentTable(ddf, database, table.extends!, ddfParentTable, indices);
                 database._partialTables[table.extends!] = _.cloneDeep(ddfParentTable);
+
+                // if the table had a parent, that table will also be cloned.
+                // this replaced the cloned table with a proper reference
+                if (ddfParentTable._parent) {
+                    database._partialTables[table.extends!]._parent =
+                        database._partialTables[ddfParentTable._parent._name];
+                }
             }
         }
     }

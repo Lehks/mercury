@@ -1,11 +1,13 @@
 import { IDatabaseDefinition } from '../typings/database-definition';
 import path from 'path';
 import ErrorBase from '../error-base';
+import logger from '../logger';
 
 namespace Loader {
     export async function load(ddfPath: string, relativePath: string = process.cwd()): Promise<IDatabaseDefinition> {
         try {
             const actualPath = resolveIncludePath(ddfPath, relativePath);
+            logger.debug(`Loading file from '${actualPath}'.`);
 
             const ret = (await import(actualPath)) as IDatabaseDefinition;
 
