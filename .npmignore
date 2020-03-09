@@ -1,0 +1,11 @@
+/lib
+.git
+.vscode
+
+/index.ts
+.eslintrc.js
+.eslintignore
+.gitattributes
+.gitingore
+.prettierrc
+tsconfig.json

@@ -3,6 +3,7 @@ import PreProcessor from '../core/pre-processing/pre-processor';
 import logger from '../core/logger.js';
 import yargs from 'yargs';
 import path from 'path';
+import SQLGenerator from '../core/generation/sql/sql-generator.js';
 
 namespace Generate {
     export function build(command: yargs.Argv) {
@@ -42,6 +43,8 @@ namespace Generate {
             if (argv.logDdf) {
                 logger.info(JSON.stringify(ddf, null, 4));
             }
+
+            await SQLGenerator.run(ddf);
         } catch (error) {
             logger.error(error);
         }
@@ -61,7 +64,7 @@ namespace Generate {
         switch (level) {
             case 'silent':
             default:
-                logger.silent = true;
+                logger.level = 'error';
                 break;
             case 'minimal':
                 logger.level = 'info';

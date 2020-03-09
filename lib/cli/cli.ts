@@ -1,3 +1,4 @@
+#!/bin/env node
 import yargs from 'yargs';
 import Generate from './generate';
 

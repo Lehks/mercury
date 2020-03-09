@@ -2,10 +2,11 @@
     "name": "mercury",
     "version": "1.0.0",
     "description": "A library that generates both SQL to create a database and a JS client for the database.",
-    "main": "index.js",
+    "main": "dist/index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
+    "bin": "dist/lib/cli/cli.js",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/Lehks/mercury.git"
