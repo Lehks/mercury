@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "description": "A library that generates both SQL to create a database and a JS client for the database.",
     "main": "dist/index.js",
+    "types": "dist/index.d.ts",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },

@@ -1,6 +1,6 @@
 import { IDatabaseDefinition } from '../../typings/database-definition';
-import SQLGeneratorBase = require('./sql-generator-base');
-import logger = require('../../logger');
+import SQLGeneratorBase from './sql-generator-base';
+import logger from '../../logger';
 
 namespace SQLGenerator {
     export async function run(ddf: IDatabaseDefinition) {
