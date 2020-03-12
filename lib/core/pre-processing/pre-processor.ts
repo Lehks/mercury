@@ -9,6 +9,7 @@ import NameResolver from './name-resolver';
 import { IDatabaseDefinition } from '../typings/database-definition';
 import logger from '../logger';
 import TypeDefinitionResolver from './type-definition-resolver';
+import PrimaryKeyResolver from './primary-key-resolver';
 
 class PreProcessor {
     // all phases, in order of execution
@@ -19,6 +20,7 @@ class PreProcessor {
         'resolve-column-definitions',
         'resolve-type-definitions',
         'resolve-foreign-keys',
+        'resolve-primary-keys',
         'type-checks',
         'resolve-names'
     ] as PreProcessor.Phase[];
@@ -30,6 +32,7 @@ class PreProcessor {
         'resolve-column-definitions': ColumnDefinitionResolver.run,
         'resolve-type-definitions': TypeDefinitionResolver.run,
         'resolve-foreign-keys': ForeignKeyResolver.run,
+        'resolve-primary-keys': PrimaryKeyResolver.run,
         'type-checks': TypeChecker.run,
         'resolve-names': NameResolver.run
     };
@@ -70,6 +73,7 @@ namespace PreProcessor {
         | 'resolve-column-definitions'
         | 'resolve-type-definitions'
         | 'resolve-foreign-keys'
+        | 'resolve-primary-keys'
         | 'type-checks'
         | 'resolve-names';
 }
