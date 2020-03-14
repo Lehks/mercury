@@ -11,7 +11,7 @@ namespace SQLGenerator {
 
             logger.debug(`Using driver '${database.connection.driver}'.`);
             logger.debug(`Generating into '${ddf.meta.sqlOutputDir}'.`);
-            const Generator = require(database.connection.driver);
+            const Generator = require(database.connection.driver).SQLGenerator;
             logger.debug('Successfully loaded driver.');
 
             const generator = new Generator() as SQLGeneratorBase;
