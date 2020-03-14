@@ -11,9 +11,10 @@ import logger from '../../logger';
 abstract class SQLGeneratorBase {
     protected abstract async createDatabase(database: NS.IDatabase): Promise<string>;
     protected abstract async addTable(table: NS.ITable): Promise<string>;
-    protected abstract async addColumn(table: NS.ITable, column: NS.IColumn): Promise<string>;
-    protected abstract async addForeignKey(table: NS.ITable, foreignKey: NS.IForeignKey): Promise<string>;
-    protected abstract async addPrimaryKey(table: NS.ITable, column: NS.IPKColumn): Promise<string>;
+    protected abstract async addColumn(column: NS.IColumn): Promise<string>;
+    protected abstract async addForeignKey(foreignKey: NS.IForeignKey): Promise<string>;
+    protected abstract async addPrimaryKey(column: NS.IPKColumn): Promise<string>;
+    protected abstract async postAddTable(table: NS.ITable): Promise<string>;
 
     public async run(name: string, database: IDatabase, outDir: string) {
         logger.debug(`Generating SQL for database '${name}'.`);
@@ -26,84 +27,97 @@ abstract class SQLGeneratorBase {
             const table = database.tables[tableName];
 
             logger.debug('Generating create tables SQL.');
-            sql.push(await this.addTable({ name: table.meta.rdbmsName }));
+            sql.push(await this.addTable({ database: { name: database.meta.rdbmsName }, name: table.meta.rdbmsName }));
             logger.debug('Successfully generated create tables SQL.');
 
             logger.debug('Generating create columns SQL.');
-            sql.push(...(await this.generateColumns(table)));
+            sql.push(...(await this.generateColumns(table, database.meta.rdbmsName)));
             logger.debug('Successfully generated create columns SQL.');
 
             logger.debug('Generating create foreign keys SQL.');
-            sql.push(...(await this.generateForeignKeys(table)));
+            sql.push(...(await this.generateForeignKeys(table, database.meta.rdbmsName)));
             logger.debug('Successfully generated create foreign keys SQL.');
 
             logger.debug('Generating create primary keys SQL.');
-            sql.push(...(await this.generatePrimaryKeys(table)));
+            sql.push(...(await this.generatePrimaryKeys(table, database.meta.rdbmsName)));
             logger.debug('Successfully generated create primary keys SQL.');
+
+            logger.debug('Running post add table step.');
+            sql.push(
+                await this.postAddTable({ database: { name: database.meta.rdbmsName }, name: table.meta.rdbmsName })
+            );
+            logger.debug('Successfully ran post add table step.');
         }
 
         await this.write(outDir, name, sql);
     }
 
-    private async generateColumns(table: ITable, tableName: string = table.meta.rdbmsName): Promise<string[]> {
+    private async generateColumns(
+        table: ITable,
+        databaseName: string,
+        tableName: string = table.meta.rdbmsName
+    ): Promise<string[]> {
         const ret = [] as string[];
-
         for (const columnName in table.columns) {
             const column = table.columns[columnName] as IConcreteColumn;
             ret.push(
-                await this.addColumn(
-                    { name: tableName },
-                    {
-                        name: column.meta.rdbmsName,
-                        nullable: column.nullable,
-                        unique: column.unique,
-                        type: column.type as IConcreteType
-                    }
-                )
+                await this.addColumn({
+                    table: {
+                        database: { name: databaseName },
+                        name: tableName
+                    },
+                    name: column.meta.rdbmsName,
+                    nullable: column.nullable,
+                    unique: column.unique,
+                    type: column.type as IConcreteType
+                })
             );
         }
 
         if (table._parent) {
-            ret.push(...(await this.generateColumns(table._parent, tableName)));
+            ret.push(...(await this.generateColumns(table._parent, databaseName, tableName)));
         }
 
         return ret;
     }
 
-    private async generateForeignKeys(table: ITable, tableName: string = table.meta.rdbmsName): Promise<string[]> {
+    private async generateForeignKeys(
+        table: ITable,
+        databaseName: string,
+        tableName: string = table.meta.rdbmsName
+    ): Promise<string[]> {
         const ret = [] as string[];
 
         for (const foreignKeyName in table.constraints.foreignKeys) {
             const foreignKey = table.constraints.foreignKeys[foreignKeyName];
             ret.push(
-                await this.addForeignKey(
-                    { name: tableName },
-                    {
-                        name: foreignKeyName,
-                        ...foreignKey
-                    }
-                )
+                await this.addForeignKey({
+                    table: {
+                        database: { name: databaseName },
+                        name: table.meta.rdbmsName
+                    },
+                    name: foreignKeyName,
+                    ...foreignKey
+                })
             );
         }
 
         if (table._parent) {
-            ret.push(...(await this.generateForeignKeys(table._parent, tableName)));
+            ret.push(...(await this.generateForeignKeys(table._parent, databaseName, tableName)));
         }
 
         return ret;
     }
 
-    private async generatePrimaryKeys(table: ITable): Promise<string[]> {
+    private async generatePrimaryKeys(table: ITable, databaseName: string): Promise<string[]> {
         const ret = [] as string[];
 
         for (const primaryKey of table.primaryKey) {
             ret.push(
-                await this.addPrimaryKey(
-                    { name: table.meta.rdbmsName },
-                    {
-                        name: primaryKey
-                    }
-                )
+                await this.addPrimaryKey({
+                    table: { database: { name: databaseName }, name: table.meta.rdbmsName },
+                    name: primaryKey
+                })
             );
         }
 
@@ -121,9 +135,13 @@ namespace SQLGeneratorBase {
     }
 
     export type IDatabase = INamed;
-    export type ITable = INamed;
+
+    export interface ITable extends INamed {
+        database: IDatabase;
+    }
 
     export interface IColumn extends INamed {
+        table: ITable;
         nullable: boolean;
         unique: boolean;
         type: IType;
@@ -132,6 +150,7 @@ namespace SQLGeneratorBase {
     export type IType = IConcreteType;
 
     export interface IForeignKey extends INamed {
+        table: ITable;
         on: string;
         references: {
             table: string;
@@ -141,7 +160,9 @@ namespace SQLGeneratorBase {
         onDelete: TriggerAction;
     }
 
-    export type IPKColumn = INamed;
+    export interface IPKColumn extends INamed {
+        table: ITable;
+    }
 }
 
 import NS = SQLGeneratorBase;
