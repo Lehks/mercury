@@ -24,10 +24,12 @@
                     }
                 },
                 "onUpdate": {
-                    "$ref": "#/definitions/triggerAction"
+                    "$ref": "#/definitions/triggerAction",
+                    "default": "no-action"
                 },
                 "onDelete": {
-                    "$ref": "#/definitions/triggerAction"
+                    "$ref": "#/definitions/triggerAction",
+                    "default": "no-action"
                 }
             }
         },

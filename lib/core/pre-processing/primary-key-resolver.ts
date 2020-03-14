@@ -2,6 +2,7 @@ import { IDatabaseDefinition } from '../typings/database-definition';
 import { ITable } from '../typings/table';
 import ErrorBase from '../error-base';
 import { ICompoundPrimaryKey } from '../typings/primary-key';
+import MultiError from '../multi-error';
 
 namespace PrimaryKeyResolver {
     export async function run(ddf: IDatabaseDefinition) {
@@ -12,6 +13,8 @@ namespace PrimaryKeyResolver {
                 if (entry[1].primaryKey.length === 0) {
                     throw new MissingPrimaryKey(entry[0]);
                 }
+
+                checkPrimaryKeyExistence(entry[1]);
             });
         });
     }
@@ -35,12 +38,52 @@ namespace PrimaryKeyResolver {
         }
     }
 
+    function checkPrimaryKeyExistence(table: ITable) {
+        const errors = [] as ErrorBase[];
+
+        (table.primaryKey as ICompoundPrimaryKey).forEach(pk => {
+            if (!hasColumn(pk, table)) {
+                errors.push(new MissingPrimaryKeyColumn(table._name, pk));
+            }
+        });
+
+        if (errors.length > 0) {
+            throw new MultiError(...errors);
+        }
+    }
+
+    function hasColumn(column: string, table: ITable): boolean {
+        if (Object.keys(table.columns).includes(column)) {
+            return true;
+        }
+
+        if (table._parent) {
+            return hasColumn(column, table._parent);
+        } else {
+            return false;
+        }
+    }
+
     export class MissingPrimaryKey extends ErrorBase {
         public readonly table: string;
 
         public constructor(table: string) {
             super(ErrorBase.Code.MISSING_PRIMARY_KEY, `The table '${table}' does not contain a primary key.`);
             this.table = table;
+        }
+    }
+
+    export class MissingPrimaryKeyColumn extends ErrorBase {
+        public readonly table: string;
+        public readonly column: string;
+
+        public constructor(table: string, column: string) {
+            super(
+                ErrorBase.Code.MISSING_PRIMARY_KEY,
+                `The table '${table}' names the column '${column}' as primary key, but it does not exist.`
+            );
+            this.table = table;
+            this.column = column;
         }
     }
 }
