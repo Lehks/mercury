@@ -9,6 +9,7 @@ abstract class ErrorBase extends Error {
 
 namespace ErrorBase {
     export enum Code {
+        UNEXPECTED = -1,
         MULTI_ERROR = 0,
         INCLUDE_DUPLICATE_DATABASE = 1,
         INCLUDE_DUPLICATE_COLUMN_DEFINITION = 2,
@@ -29,7 +30,10 @@ namespace ErrorBase {
         INVALID_ENUM_DEFAULT_LITERAL = 17,
         INVALID_DEFAULT_SIGN = 18,
         INVALID_DEFAULT_STRING_LENGTH = 19,
-        MISSING_PRIMARY_KEY = 20
+        MISSING_PRIMARY_KEY = 20,
+        MISSING_REQUIRED_CONNECTION_KEY = 21,
+        NOT_INITIALIZED = 22,
+        ALREADY_INITIALIZED = 23
     }
 }
 

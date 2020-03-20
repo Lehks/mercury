@@ -1,8 +1,8 @@
 import Ajv from 'ajv';
 import path from 'path';
 import { IDatabaseDefinition } from '../typings/database-definition';
-import ErrorBase from '../error-base';
-import MultiError from '../multi-error';
+import ErrorBase from '../errors/error-base';
+import MultiError from '../errors/multi-error';
 
 namespace Validator {
     // __dirname / pre-processing / core / lib / dist

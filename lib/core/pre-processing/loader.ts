@@ -1,6 +1,6 @@
 import { IDatabaseDefinition } from '../typings/database-definition';
 import path from 'path';
-import ErrorBase from '../error-base';
+import ErrorBase from '../errors/error-base';
 import logger from '../logger';
 
 namespace Loader {

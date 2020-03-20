@@ -1,8 +1,8 @@
 import { IDatabaseDefinition } from '../typings/database-definition';
 import Validator from './validator';
-import ErrorBase from '../error-base';
+import ErrorBase from '../errors/error-base';
 import Loader from './loader';
-import MultiError from '../multi-error';
+import MultiError from '../errors/multi-error';
 import path from 'path';
 import Meta from '../typings/meta';
 import logger from '../logger';

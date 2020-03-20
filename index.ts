@@ -1,6 +1,6 @@
 import logger from './lib/core/logger';
-import ErrorBase from './lib/core/error-base';
-import MultiError from './lib/core/multi-error';
+import ErrorBase from './lib/core/errors/error-base';
+import MultiError from './lib/core/errors/multi-error';
 
 import ColumnDefinitionResolver from './lib/core/pre-processing/column-definition-resolver';
 import ForeignKeyResolver from './lib/core/pre-processing/foreign-key-resolver';

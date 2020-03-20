@@ -1,8 +1,8 @@
 import { IDatabaseDefinition } from '../typings/database-definition';
 import { ITable } from '../typings/table';
-import ErrorBase from '../error-base';
+import ErrorBase from '../errors/error-base';
 import _ from 'lodash';
-import MultiError from '../multi-error';
+import MultiError from '../errors/multi-error';
 import { IForeignKey } from '../typings/foreign-key';
 import { IDatabase } from '../typings/database';
 import logger from '../logger';

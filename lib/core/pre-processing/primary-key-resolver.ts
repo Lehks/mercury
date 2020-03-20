@@ -1,8 +1,8 @@
 import { IDatabaseDefinition } from '../typings/database-definition';
 import { ITable } from '../typings/table';
-import ErrorBase from '../error-base';
+import ErrorBase from '../errors/error-base';
 import { ICompoundPrimaryKey } from '../typings/primary-key';
-import MultiError from '../multi-error';
+import MultiError from '../errors/multi-error';
 
 namespace PrimaryKeyResolver {
     export async function run(ddf: IDatabaseDefinition) {

@@ -8,7 +8,7 @@ import { IString } from '../typings/types/string';
 import { IEnum } from '../typings/types/enum';
 import { ITemporal } from '../typings/types/temporal';
 import { IBoolean } from '../typings/types/boolean';
-import ErrorBase from '../error-base';
+import ErrorBase from '../errors/error-base';
 
 namespace TypeChecker {
     export async function run(ddf: IDatabaseDefinition) {

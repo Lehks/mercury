@@ -1,7 +1,7 @@
-import { IConnectionCredentials } from './connection-credentials';
+import { IConnectionData } from './connection-credentials';
 
 export interface IDatabaseConnection {
     driver: string;
-    default: IConnectionCredentials;
-    admin?: IConnectionCredentials;
+    default: IConnectionData;
+    admin?: IConnectionData;
 }
