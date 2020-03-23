@@ -10,6 +10,7 @@ import { IDatabaseDefinition } from '../typings/database-definition';
 import logger from '../logger';
 import TypeDefinitionResolver from './type-definition-resolver';
 import PrimaryKeyResolver from './primary-key-resolver';
+import CredentialsResolver from './credentials-processor';
 
 class PreProcessor {
     // all phases, in order of execution
@@ -22,7 +23,8 @@ class PreProcessor {
         'resolve-foreign-keys',
         'resolve-primary-keys',
         'type-checks',
-        'resolve-names'
+        'resolve-names',
+        'process-credentials'
     ] as PreProcessor.Phase[];
 
     private static readonly PHASE_MAP = {
@@ -34,7 +36,8 @@ class PreProcessor {
         'resolve-foreign-keys': ForeignKeyResolver.run,
         'resolve-primary-keys': PrimaryKeyResolver.run,
         'type-checks': TypeChecker.run,
-        'resolve-names': NameResolver.run
+        'resolve-names': NameResolver.run,
+        'process-credentials': CredentialsResolver.run
     };
 
     public readonly path: string;
@@ -75,7 +78,8 @@ namespace PreProcessor {
         | 'resolve-foreign-keys'
         | 'resolve-primary-keys'
         | 'type-checks'
-        | 'resolve-names';
+        | 'resolve-names'
+        | 'process-credentials';
 }
 
 export = PreProcessor;
