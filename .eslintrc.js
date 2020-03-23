@@ -4,10 +4,7 @@ module.exports = {
         browser: true,
         es6: true
     },
-    extends: [
-        'plugin:@typescript-eslint/recommended',
-        'plugin:@typescript-eslint/recommended-requiring-type-checking'
-    ],
+    extends: ['plugin:@typescript-eslint/recommended', 'plugin:@typescript-eslint/recommended-requiring-type-checking'],
     parser: '@typescript-eslint/parser',
     parserOptions: {
         project: 'tsconfig.json',
@@ -20,6 +17,8 @@ module.exports = {
         '@typescript-eslint/ban-types': 'error',
         '@typescript-eslint/class-name-casing': 'error',
         '@typescript-eslint/consistent-type-assertions': 'error',
+        '@typescript-eslint/require-await': 'off',
+        '@typescript-eslint/no-non-null-assertion': 'off',
         '@typescript-eslint/explicit-member-accessibility': [
             'error',
             {
@@ -31,17 +30,16 @@ module.exports = {
             4,
             {
                 ArrayExpression: 'first',
-                ObjectExpression: 'first'
+                ObjectExpression: 'first',
+                SwitchCase: 1
             }
         ],
-        '@typescript-eslint/interface-name-prefix': {
-            prefixWithI: 'always'
-        },
+        '@typescript-eslint/interface-name-prefix': ['error', { prefixWithI: 'always' }],
         '@typescript-eslint/member-delimiter-style': [
             'error',
             {
                 multiline: {
-                    delimiter: 'none',
+                    delimiter: 'semi',
                     requireLast: true
                 },
                 singleline: {
@@ -65,7 +63,6 @@ module.exports = {
         '@typescript-eslint/prefer-function-type': 'error',
         '@typescript-eslint/prefer-namespace-keyword': 'error',
         '@typescript-eslint/promise-function-async': 'error',
-        '@typescript-eslint/quotes': ['error', 'single'],
         '@typescript-eslint/semi': ['error', 'always'],
         '@typescript-eslint/triple-slash-reference': 'error',
         '@typescript-eslint/unbound-method': 'error',
@@ -79,19 +76,8 @@ module.exports = {
         'eol-last': 'error',
         eqeqeq: ['error', 'always'],
         'guard-for-in': 'error',
-        'id-blacklist': [
-            'error',
-            'any',
-            'Number',
-            'number',
-            'String',
-            'string',
-            'Boolean',
-            'boolean',
-            'Undefined',
-            'undefined'
-        ],
         'id-match': 'error',
+        'no-return-await': 'error',
         'import/no-deprecated': 'error',
         'import/no-extraneous-dependencies': [
             'error',
@@ -121,7 +107,6 @@ module.exports = {
         'no-fallthrough': 'off',
         'no-invalid-this': 'error',
         'no-new-wrappers': 'error',
-        'no-redeclare': 'error',
         'no-sequences': 'error',
         'no-shadow': [
             'error',
@@ -133,14 +118,12 @@ module.exports = {
         'no-throw-literal': 'error',
         'no-trailing-spaces': 'error',
         'no-undef-init': 'error',
-        'no-underscore-dangle': 'error',
         'no-unsafe-finally': 'error',
         'no-unused-expressions': 'error',
         'no-unused-labels': 'error',
         'no-var': 'error',
         'object-shorthand': 'error',
         'one-var': ['error', 'never'],
-        'prefer-arrow/prefer-arrow-functions': 'error',
         'prefer-const': 'error',
         '@typescript-eslint/prefer-readonly': 'error',
         'prefer-template': 'error',
@@ -148,6 +131,13 @@ module.exports = {
         'spaced-comment': 'error',
         'use-isnan': 'error',
         'valid-typeof': 'off',
-        yoda: 'error'
+        yoda: 'error',
+        quotes: [
+            'error',
+            'single',
+            {
+                avoidEscape: true
+            }
+        ]
     }
 };

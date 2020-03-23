@@ -1,12 +1,12 @@
+import path from 'path';
 import { IDatabaseDefinition } from '../typings/database-definition';
 import logger from '../logger';
 import { IConnectionData } from '../typings/connection-credentials';
-import path from 'path';
 
 namespace CredentialsResolver {
     type IDatabaseDef = IDatabaseDefinition;
 
-    export async function run(ddf: IDatabaseDef) {
+    export async function run(ddf: IDatabaseDef): Promise<void> {
         Object.entries(ddf.databases).forEach(entry => {
             logger.debug(`Processing credentials of database '${entry[0]}'.`);
 

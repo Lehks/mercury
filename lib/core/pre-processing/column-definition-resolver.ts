@@ -1,12 +1,12 @@
+import _ from 'lodash';
 import { IDatabaseDefinition } from '../typings/database-definition';
 import { ITable } from '../typings/table';
 import ErrorBase from '../errors/error-base';
-import _ from 'lodash';
 import MultiError from '../errors/multi-error';
 import logger from '../logger';
 
 namespace ColumnDefinitionResolver {
-    export async function run(ddf: IDatabaseDefinition) {
+    export async function run(ddf: IDatabaseDefinition): Promise<void> {
         const errors = [] as ErrorBase[];
 
         Object.entries(ddf.databases).forEach(databaseEntry => {
@@ -26,7 +26,7 @@ namespace ColumnDefinitionResolver {
         }
     }
 
-    function resolveColumnsInTable(ddf: IDatabaseDefinition, table: ITable) {
+    function resolveColumnsInTable(ddf: IDatabaseDefinition, table: ITable): void {
         Object.entries(table.columns).forEach(entry => {
             const name = entry[0];
             const column = entry[1];

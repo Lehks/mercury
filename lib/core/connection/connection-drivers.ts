@@ -1,10 +1,10 @@
+import ErrorBase from '../errors/error-base';
 import ConnectionManager from './connection-manager';
 import ConnectionDataProvider from './connection-data-provider';
-import ErrorBase from '../errors/error-base';
 
 namespace ConnectionDrivers {
     export interface IConnectionManagerDriver {
-        getConnectionDataRequirements: () => ConnectionDataProvider.Requirements;
+        getConnectionDataRequirements: () => ConnectionDataProvider.IRequirements;
         initialize: (provider: ConnectionDataProvider.IConnectionData) => Promise<void>;
         terminate: () => Promise<void>;
         getConnection: () => Promise<IConnectionDriver>;

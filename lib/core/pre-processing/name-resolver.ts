@@ -1,13 +1,13 @@
+import { camelCase, constantCase, pascalCase, snakeCase, paramCase } from 'change-case';
 import { IDatabaseDefinition } from '../typings/database-definition';
 import { IConcreteColumn } from '../typings/column';
 import { ITable } from '../typings/table';
 import Meta from '../typings/meta';
-import { camelCase, constantCase, pascalCase, snakeCase, paramCase } from 'change-case';
 import { IDatabase } from '../typings/database';
 import logger from '../logger';
 
 namespace NameResolver {
-    export async function run(ddf: IDatabaseDefinition) {
+    export async function run(ddf: IDatabaseDefinition): Promise<void> {
         Object.entries(ddf.databases).forEach(databaseEntry => {
             logger.debug(`Resolving names in database '${databaseEntry[0]}'.`);
             mergeIntoDatabaseConventions(ddf.meta.naming, databaseEntry[1].meta.naming);
@@ -25,7 +25,7 @@ namespace NameResolver {
         });
     }
 
-    function runForTable(database: IDatabase, table: ITable, tableName: string) {
+    function runForTable(database: IDatabase, table: ITable, tableName: string): void {
         mergeIntoTableConventions(database.meta.naming, table.meta.naming);
         resolveTableNames(table, tableName);
 
@@ -38,7 +38,7 @@ namespace NameResolver {
         });
     }
 
-    function resolveDatabaseNames(database: IDatabase, databaseName: string) {
+    function resolveDatabaseNames(database: IDatabase, databaseName: string): void {
         const conventions = database.meta.naming;
 
         if (!database.meta.moduleName) {
@@ -50,7 +50,7 @@ namespace NameResolver {
         }
     }
 
-    function resolveTableNames(table: ITable, tableName: string) {
+    function resolveTableNames(table: ITable, tableName: string): void {
         const conventions = table.meta.naming;
 
         if (!table.meta.className) {
@@ -66,7 +66,7 @@ namespace NameResolver {
         }
     }
 
-    function resolveColumnNames(column: IConcreteColumn, columnName: string) {
+    function resolveColumnNames(column: IConcreteColumn, columnName: string): void {
         const conventions = column.meta.naming;
 
         if (!column.meta.constantName) {
@@ -112,7 +112,7 @@ namespace NameResolver {
     function mergeIntoDatabaseConventions(
         globalConventions: Meta.IGlobalLevelNamingConventions,
         databaseConventions: Meta.IDatabaseLevelNamingConventions
-    ) {
+    ): void {
         databaseConventions.rdbmsDatabaseNameConvention = mergeConvention(
             globalConventions.rdbmsDatabaseNameConvention,
             databaseConventions.rdbmsDatabaseNameConvention
@@ -124,7 +124,7 @@ namespace NameResolver {
     function mergeIntoTableConventions(
         databaseConventions: Meta.IDatabaseLevelNamingConventions,
         tableConventions: Meta.ITableLevelNamingConventions
-    ) {
+    ): void {
         tableConventions.classNameConvention = mergeConvention(
             databaseConventions.classNameConvention,
             tableConventions.classNameConvention
@@ -146,7 +146,7 @@ namespace NameResolver {
     function mergeIntoColumnConventions(
         tableConventions: Meta.ITableLevelNamingConventions,
         columnConventions: Meta.IColumnLevelNamingConventions
-    ) {
+    ): void {
         columnConventions.constantNameConvention = mergeConvention(
             tableConventions.constantNameConvention,
             columnConventions.constantNameConvention

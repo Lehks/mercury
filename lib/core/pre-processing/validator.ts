@@ -1,5 +1,5 @@
-import Ajv from 'ajv';
 import path from 'path';
+import Ajv from 'ajv';
 import { IDatabaseDefinition } from '../typings/database-definition';
 import ErrorBase from '../errors/error-base';
 import MultiError from '../errors/multi-error';
@@ -29,14 +29,14 @@ namespace Validator {
         './database.schema.json'
     ];
 
-    export async function run(ddf: IDatabaseDefinition) {
+    export async function run(ddf: IDatabaseDefinition): Promise<void> {
         const ajv = await setupAjv();
         const validate = getValidateFunction(ajv);
 
         const valid = validate(ddf);
 
         if (valid) {
-            Object.assign(ddf, valid);
+            await Object.assign(ddf, valid);
         } else {
             throw new MultiError(...validate.errors!.map(e => new ValidationError(e)));
         }

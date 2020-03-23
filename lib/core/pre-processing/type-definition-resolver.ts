@@ -1,12 +1,12 @@
+import _ from 'lodash';
 import { IDatabaseDefinition } from '../typings/database-definition';
 import { ITable } from '../typings/table';
 import ErrorBase from '../errors/error-base';
-import _ from 'lodash';
 import MultiError from '../errors/multi-error';
 import logger from '../logger';
 
 namespace TypeDefinitionResolver {
-    export async function run(ddf: IDatabaseDefinition) {
+    export async function run(ddf: IDatabaseDefinition): Promise<void> {
         const errors = [] as ErrorBase[];
 
         Object.entries(ddf.databases).forEach(databaseEntry => {
@@ -25,7 +25,7 @@ namespace TypeDefinitionResolver {
         }
     }
 
-    function resolveTypesInTable(ddf: IDatabaseDefinition, table: ITable, tableName: string) {
+    function resolveTypesInTable(ddf: IDatabaseDefinition, table: ITable, tableName: string): void {
         logger.debug(`Resolving types in table '${tableName}'.`);
         Object.values(table.columns).forEach(column => {
             if (typeof column !== 'string') {

@@ -1,23 +1,23 @@
-import { IInternalCredentials, IConnectionData, IConnectionCredentials } from '../typings/connection-credentials';
+import fs from 'fs';
 import _ from 'lodash';
+import { IInternalCredentials, IConnectionData } from '../typings/connection-credentials';
 import { IDatabaseConnection } from '../typings/database-connection';
 import logger from '../logger';
 import ErrorBase from '../errors/error-base';
 import MultiError from '../errors/multi-error';
-import fs from 'fs';
 
 class ConnectionDataProvider implements ConnectionDataProvider.IStrategy {
-    private strategy: ConnectionDataProvider.IStrategy;
-    private connection: IDatabaseConnection;
-    private type: 'default' | 'admin';
-    private requirements: ConnectionDataProvider.Requirements;
-    private databaseName: string;
+    private readonly strategy: ConnectionDataProvider.IStrategy;
+    private readonly connection: IDatabaseConnection;
+    private readonly type: 'default' | 'admin';
+    private readonly requirements: ConnectionDataProvider.IRequirements;
+    private readonly databaseName: string;
     private data?: ConnectionDataProvider.IConnectionData;
 
     public constructor(
         connection: IDatabaseConnection,
         type: 'default' | 'admin',
-        requirements: ConnectionDataProvider.Requirements,
+        requirements: ConnectionDataProvider.IRequirements,
         databaseName: string
     ) {
         this.connection = connection;
@@ -25,6 +25,15 @@ class ConnectionDataProvider implements ConnectionDataProvider.IStrategy {
         this.requirements = requirements;
         this.databaseName = databaseName;
         this.strategy = this.getStrategy();
+    }
+
+    public async getData(): Promise<ConnectionDataProvider.IConnectionData> {
+        if (!this.data) {
+            this.data = _.merge(this.getDataObject().data, await this.strategy.getData());
+            this.checkRequirements();
+        }
+
+        return this.data;
     }
 
     private getStrategy(): ConnectionDataProvider.IStrategy {
@@ -42,14 +51,14 @@ class ConnectionDataProvider implements ConnectionDataProvider.IStrategy {
     }
 
     private getDataObject(): IConnectionData {
-        if (this.type == 'admin' && this.connection.admin) {
+        if (this.type === 'admin' && this.connection.admin) {
             return this.connection.admin;
         } else {
             return this.connection.default;
         }
     }
 
-    private checkRequirements() {
+    private checkRequirements(): void {
         const dataKeys = Object.keys(this.data!);
 
         dataKeys.forEach(key => {
@@ -66,15 +75,6 @@ class ConnectionDataProvider implements ConnectionDataProvider.IStrategy {
             throw new MultiError(...errors);
         }
     }
-
-    public async getData(): Promise<ConnectionDataProvider.IConnectionData> {
-        if (!this.data) {
-            this.data = _.merge(this.getDataObject().data, await this.strategy.getData());
-            this.checkRequirements();
-        }
-
-        return this.data;
-    }
 }
 
 namespace ConnectionDataProvider {
@@ -87,7 +87,7 @@ namespace ConnectionDataProvider {
     }
 
     export class InternalCredentialsStrategy implements IStrategy {
-        private credentials: IInternalCredentials;
+        private readonly credentials: IInternalCredentials;
 
         public constructor(credentials: IInternalCredentials) {
             this.credentials = credentials;
@@ -99,7 +99,7 @@ namespace ConnectionDataProvider {
     }
 
     export class ExternalCredentialsStrategy implements IStrategy {
-        private path: string;
+        private readonly path: string;
 
         public constructor(path: string) {
             this.path = path;
@@ -111,7 +111,7 @@ namespace ConnectionDataProvider {
     }
 
     export class EnvironmentCredentialsStrategy implements IStrategy {
-        private prefix: string;
+        private readonly prefix: string;
 
         public constructor(type: 'default' | 'admin', databaseName: string) {
             this.prefix = `MERCURY_${type.toUpperCase()}_${databaseName}_`;
@@ -128,7 +128,7 @@ namespace ConnectionDataProvider {
 
     export type RequirementState = 'required' | 'allowed';
 
-    export interface Requirements {
+    export interface IRequirements {
         [key: string]: RequirementState;
     }
 

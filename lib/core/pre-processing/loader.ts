@@ -1,5 +1,5 @@
-import { IDatabaseDefinition } from '../typings/database-definition';
 import path from 'path';
+import { IDatabaseDefinition } from '../typings/database-definition';
 import ErrorBase from '../errors/error-base';
 import logger from '../logger';
 

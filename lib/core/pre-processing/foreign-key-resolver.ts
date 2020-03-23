@@ -1,14 +1,13 @@
 import { IDatabaseDefinition } from '../typings/database-definition';
 import { ITable } from '../typings/table';
 import ErrorBase from '../errors/error-base';
-import _ from 'lodash';
 import MultiError from '../errors/multi-error';
 import { IForeignKey } from '../typings/foreign-key';
 import { IDatabase } from '../typings/database';
 import logger from '../logger';
 
 namespace ForeignKeyResolver {
-    export async function run(ddf: IDatabaseDefinition) {
+    export async function run(ddf: IDatabaseDefinition): Promise<void> {
         const errors = [] as ErrorBase[];
 
         Object.entries(ddf.databases).forEach(databaseEntry => {
@@ -32,7 +31,7 @@ namespace ForeignKeyResolver {
         database: IDatabase,
         table: ITable,
         tableName: string
-    ) {
+    ): void {
         logger.debug(`Resolving foreign keys in table '${tableName}'.`);
 
         Object.entries(table.constraints.foreignKeys).forEach(entry => {
@@ -52,19 +51,19 @@ namespace ForeignKeyResolver {
         }
     }
 
-    function checkSelfReference(table: ITable, foreignKey: IForeignKey) {
+    function checkSelfReference(table: ITable, foreignKey: IForeignKey): void {
         if (foreignKey.references.table === table._name) {
             throw new ForeignKeySelfReference(foreignKey._name, table._name);
         }
     }
 
-    function checkOn(table: ITable, foreignKey: IForeignKey) {
+    function checkOn(table: ITable, foreignKey: IForeignKey): void {
         if (!Object.keys(table.columns).includes(foreignKey.on)) {
             throw new InvalidForeignKeyOn(table._name, foreignKey);
         }
     }
 
-    function checkReference(database: IDatabase, table: ITable, foreignKey: IForeignKey) {
+    function checkReference(database: IDatabase, table: ITable, foreignKey: IForeignKey): void {
         if (!Object.keys(database.tables).includes(foreignKey.references.table)) {
             throw new InvalidForeignKeyTable(table._name, foreignKey);
         }

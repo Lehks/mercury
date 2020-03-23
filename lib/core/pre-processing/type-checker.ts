@@ -6,12 +6,10 @@ import { IInteger } from '../typings/types/integer';
 import { IFloatingPoint } from '../typings/types/floating-point';
 import { IString } from '../typings/types/string';
 import { IEnum } from '../typings/types/enum';
-import { ITemporal } from '../typings/types/temporal';
-import { IBoolean } from '../typings/types/boolean';
 import ErrorBase from '../errors/error-base';
 
 namespace TypeChecker {
-    export async function run(ddf: IDatabaseDefinition) {
+    export async function run(ddf: IDatabaseDefinition): Promise<void> {
         Object.values(ddf.databases).forEach(database => {
             Object.values(database.tables).forEach(table => {
                 checkTableTypes(table);
@@ -19,7 +17,7 @@ namespace TypeChecker {
         });
     }
 
-    function checkTableTypes(table: ITable) {
+    function checkTableTypes(table: ITable): void {
         Object.entries(table.columns).forEach(entry => {
             const name = entry[0];
             const column = entry[1];
@@ -32,7 +30,7 @@ namespace TypeChecker {
         }
     }
 
-    function checkColumnType(columnName: string, rawColumn: IColumn) {
+    function checkColumnType(columnName: string, rawColumn: IColumn): void {
         const column = rawColumn as IConcreteColumn;
         const type = column.type as IConcreteType;
 
@@ -58,49 +56,49 @@ namespace TypeChecker {
             case 'date':
             case 'time':
             case 'date-time':
-                checkTemporal(type);
+                checkTemporal();
                 break;
             case 'boolean':
-                checkBoolean(type);
+                checkBoolean();
                 break;
         }
     }
 
-    function checkNull(columnName: string, column: IConcreteColumn, type: IConcreteType) {
+    function checkNull(columnName: string, column: IConcreteColumn, type: IConcreteType): void {
         if (column.nullable && type.default === null) {
             throw new InvalidNullDefault(columnName);
         }
     }
 
-    function checkInteger(type: IInteger, columnName: string) {
+    function checkInteger(type: IInteger, columnName: string): void {
         checkUnsigned(type, columnName);
     }
 
-    function checkFloat(type: IFloatingPoint, columnName: string) {
+    function checkFloat(type: IFloatingPoint, columnName: string): void {
         checkUnsigned(type, columnName);
     }
 
-    function checkString(type: IString, columnName: string) {
+    function checkString(type: IString, columnName: string): void {
         if (typeof type.default === 'string' && type.default.length > type.length) {
             throw new InvalidDefaultStringLength(columnName, type);
         }
     }
 
-    function checkEnum(type: IEnum, columnName: string) {
+    function checkEnum(type: IEnum, columnName: string): void {
         if (typeof type.default === 'string' && !type.literals.includes(type.default)) {
             throw new InvalidEnumDefaultLiteral(columnName, type);
         }
     }
 
-    function checkTemporal(type: ITemporal) {
+    function checkTemporal(): void {
         // no checks required
     }
 
-    function checkBoolean(type: IBoolean) {
+    function checkBoolean(): void {
         // no checks required
     }
 
-    function checkUnsigned(type: IInteger | IFloatingPoint, columnName: string) {
+    function checkUnsigned(type: IInteger | IFloatingPoint, columnName: string): void {
         if (type.unsigned && typeof type.default === 'number' && type.default < 0) {
             throw new InvalidDefaultSign(columnName);
         }
@@ -151,7 +149,7 @@ namespace TypeChecker {
             super(
                 ErrorBase.Code.INVALID_DEFAULT_STRING_LENGTH,
                 `The maximum length of the type of the column '${column}' is ${type.length} ` +
-                    `but its default value's length is greater than that.`
+                    "but its default value's length is greater than that."
             );
             this.column = column;
         }

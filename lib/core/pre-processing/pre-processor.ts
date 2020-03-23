@@ -1,3 +1,5 @@
+import { IDatabaseDefinition } from '../typings/database-definition';
+import logger from '../logger';
 import Loader from './loader';
 import Validator from './validator';
 import IncludeResolver from './include-resolver';
@@ -6,8 +8,6 @@ import ColumnDefinitionResolver from './column-definition-resolver';
 import ForeignKeyResolver from './foreign-key-resolver';
 import TypeChecker from './type-checker';
 import NameResolver from './name-resolver';
-import { IDatabaseDefinition } from '../typings/database-definition';
-import logger from '../logger';
 import TypeDefinitionResolver from './type-definition-resolver';
 import PrimaryKeyResolver from './primary-key-resolver';
 import CredentialsResolver from './credentials-processor';
@@ -57,7 +57,7 @@ class PreProcessor {
             const phaseFunction = PreProcessor.PHASE_MAP[phase];
             await phaseFunction(ddf);
 
-            if (phase == lastPhase) {
+            if (phase === lastPhase) {
                 break;
             }
         }

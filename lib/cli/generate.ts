@@ -1,12 +1,12 @@
+import path from 'path';
+import yargs from 'yargs';
 import packageJSON from '../../package.json';
 import PreProcessor from '../core/pre-processing/pre-processor';
 import logger from '../core/logger.js';
-import yargs from 'yargs';
-import path from 'path';
 import SQLGenerator from '../core/generation/sql/sql-generator.js';
 
 namespace Generate {
-    export function build(command: yargs.Argv) {
+    export function build(command: yargs.Argv): void {
         command
             .version(packageJSON.version)
             .option('phase', {
@@ -31,8 +31,8 @@ namespace Generate {
             .alias('version', 'v');
     }
 
-    export async function execute(argv: yargs.Arguments) {
-        let filePath = processPath(argv._[1] ? argv._[1] : 'database-definition.json');
+    export async function execute(argv: yargs.Arguments): Promise<void> {
+        const filePath = processPath(argv._[1] ? argv._[1] : 'database-definition.json');
 
         setLoggingLevel(argv.verbosity as string);
 
@@ -60,7 +60,7 @@ namespace Generate {
         return p;
     }
 
-    function setLoggingLevel(level: string) {
+    function setLoggingLevel(level: string): void {
         switch (level) {
             case 'silent':
             default:

@@ -5,7 +5,7 @@ import { ICompoundPrimaryKey } from '../typings/primary-key';
 import MultiError from '../errors/multi-error';
 
 namespace PrimaryKeyResolver {
-    export async function run(ddf: IDatabaseDefinition) {
+    export async function run(ddf: IDatabaseDefinition): Promise<void> {
         Object.values(ddf.databases).forEach(database => {
             Object.entries(database.tables).forEach(entry => {
                 resolverPrimaryKeys(entry[1]);
@@ -19,7 +19,7 @@ namespace PrimaryKeyResolver {
         });
     }
 
-    function resolverPrimaryKeys(table: ITable) {
+    function resolverPrimaryKeys(table: ITable): void {
         resolveOwnPrimaryKey(table);
 
         // resolve parent PKs and add parent PKs to this table
@@ -30,15 +30,15 @@ namespace PrimaryKeyResolver {
     }
 
     // turns any primary key in an array PK
-    function resolveOwnPrimaryKey(table: ITable) {
+    function resolveOwnPrimaryKey(table: ITable): void {
         if (table.primaryKey === undefined) {
             table.primaryKey = [];
-        } else if (typeof table.primaryKey == 'string') {
+        } else if (typeof table.primaryKey === 'string') {
             table.primaryKey = [table.primaryKey];
         }
     }
 
-    function checkPrimaryKeyExistence(table: ITable) {
+    function checkPrimaryKeyExistence(table: ITable): void {
         const errors = [] as ErrorBase[];
 
         (table.primaryKey as ICompoundPrimaryKey).forEach(pk => {

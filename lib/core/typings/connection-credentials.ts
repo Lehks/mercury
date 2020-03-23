@@ -8,8 +8,8 @@ export interface IConnectionData {
 export type IConnectionCredentials = IInternalCredentials | string | 'ENVIRONMENT';
 
 export interface IInternalCredentials {
+    [key: string]: any;
     host?: string;
     user?: string;
     password?: string;
-    [key: string]: any;
 }

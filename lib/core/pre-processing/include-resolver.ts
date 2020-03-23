@@ -1,23 +1,23 @@
-import { IDatabaseDefinition } from '../typings/database-definition';
-import Validator from './validator';
-import ErrorBase from '../errors/error-base';
-import Loader from './loader';
-import MultiError from '../errors/multi-error';
 import path from 'path';
+import { IDatabaseDefinition } from '../typings/database-definition';
+import ErrorBase from '../errors/error-base';
+import MultiError from '../errors/multi-error';
 import Meta from '../typings/meta';
 import logger from '../logger';
+import Loader from './loader';
+import Validator from './validator';
 
 namespace IncludeResolver {
     type IDatabaseDef = IDatabaseDefinition;
 
-    export async function run(ddf: IDatabaseDef) {
+    export async function run(ddf: IDatabaseDef): Promise<void> {
         // start with _ddfPath in array to avoid the re-inclusion of the root ddf
         const processedIncludes = [ddf._ddfPath] as string[];
 
         return runWrapper(ddf, processedIncludes);
     }
 
-    async function runWrapper(ddf: IDatabaseDef, processedIncludes: string[]) {
+    async function runWrapper(ddf: IDatabaseDef, processedIncludes: string[]): Promise<void> {
         for (const includePath of ddf.includes) {
             logger.debug(`Resolving include file '${includePath}'.`);
 
@@ -26,7 +26,7 @@ namespace IncludeResolver {
 
             if (!processedIncludes.includes(includeDDF._ddfPath)) {
                 logger.debug('Include file has not yet been processed.');
-                processedIncludes.push((includeDDF as IDatabaseDef)._ddfPath);
+                processedIncludes.push(includeDDF._ddfPath);
 
                 logger.debug('Validating include file.');
                 await Validator.run(includeDDF);
@@ -41,7 +41,7 @@ namespace IncludeResolver {
     }
 
     // override all meta objects in included DDFs with {naming:{}}
-    function removeMetaObjects(ddf: IDatabaseDef) {
+    function removeMetaObjects(ddf: IDatabaseDef): void {
         ddf.meta = {
             naming: {} as Meta.IGlobalLevelNamingConventions
         } as Meta.IGlobalMeta;
@@ -67,12 +67,12 @@ namespace IncludeResolver {
         });
     }
 
-    function mergeInto(source: IDatabaseDef, destination: IDatabaseDef) {
+    function mergeInto(source: IDatabaseDef, destination: IDatabaseDef): void {
         checkIfDDFsCanBeMerged(source, destination);
         mergeDDFs(source, destination);
     }
 
-    function checkIfDDFsCanBeMerged(source: IDatabaseDef, destination: IDatabaseDef) {
+    function checkIfDDFsCanBeMerged(source: IDatabaseDef, destination: IDatabaseDef): void {
         const errors = [] as ErrorBase[];
 
         checkDuplicateDatabases(source, destination, errors);
@@ -80,74 +80,84 @@ namespace IncludeResolver {
         checkDuplicateTypeDefinitions(source, destination, errors);
         checkDuplicatePartialTables(source, destination, errors);
 
-        if (errors.length != 0) {
+        if (errors.length !== 0) {
             throw new MultiError(...errors);
         }
-
-        return true;
     }
 
-    function checkDuplicateDatabases(source: IDatabaseDef, destination: IDatabaseDef, errors: ErrorBase[]) {
+    function checkDuplicateDatabases(source: IDatabaseDef, destination: IDatabaseDef, errors: ErrorBase[]): void {
         const sourceDatabases = Object.keys(source.databases);
         const destinationDatabases = Object.keys(destination.databases);
 
         const duplicateDatabases = sourceDatabases.filter(db => destinationDatabases.includes(db));
 
-        if (duplicateDatabases.length != 0) {
+        if (duplicateDatabases.length !== 0) {
             duplicateDatabases.forEach(db => errors.push(new DuplicateDatabaseError(db, source, destination)));
         }
     }
 
-    function checkDuplicateColumnDefinitions(source: IDatabaseDef, destination: IDatabaseDef, errors: ErrorBase[]) {
+    function checkDuplicateColumnDefinitions(
+        source: IDatabaseDef,
+        destination: IDatabaseDef,
+        errors: ErrorBase[]
+    ): void {
         const sourceColDefs = Object.keys(source.columnDefinitions);
         const destinationColDefs = Object.keys(destination.columnDefinitions);
 
         const duplicateColDefs = sourceColDefs.filter(def => destinationColDefs.includes(def));
 
-        if (duplicateColDefs.length != 0) {
+        if (duplicateColDefs.length !== 0) {
             duplicateColDefs.forEach(def => errors.push(new DuplicateColumnDefinitionError(def, source, destination)));
         }
     }
 
-    function checkDuplicateTypeDefinitions(source: IDatabaseDef, destination: IDatabaseDef, errors: ErrorBase[]) {
+    function checkDuplicateTypeDefinitions(source: IDatabaseDef, destination: IDatabaseDef, errors: ErrorBase[]): void {
         const sourceTypeDefs = Object.keys(source.typeDefinitions);
         const destinationTypeDefs = Object.keys(destination.typeDefinitions);
 
         const duplicateTypeDefs = sourceTypeDefs.filter(def => destinationTypeDefs.includes(def));
 
-        if (duplicateTypeDefs.length != 0) {
+        if (duplicateTypeDefs.length !== 0) {
             duplicateTypeDefs.forEach(def => errors.push(new DuplicateTypeDefinitionError(def, source, destination)));
         }
     }
 
-    function checkDuplicatePartialTables(source: IDatabaseDef, destination: IDatabaseDef, errors: ErrorBase[]) {
+    function checkDuplicatePartialTables(source: IDatabaseDef, destination: IDatabaseDef, errors: ErrorBase[]): void {
         const sourcePartialTables = Object.keys(source.partialTables);
         const destinationPartialTables = Object.keys(destination.partialTables);
 
         const duplicatePartialTables = sourcePartialTables.filter(table => destinationPartialTables.includes(table));
 
-        if (duplicatePartialTables.length != 0) {
+        if (duplicatePartialTables.length !== 0) {
             duplicatePartialTables.forEach(table =>
                 errors.push(new DuplicatePartialTableError(table, source, destination))
             );
         }
     }
 
-    function mergeDDFs(source: IDatabaseDef, destination: IDatabaseDef) {
+    function mergeDDFs(source: IDatabaseDef, destination: IDatabaseDef): void {
         for (const sourceDatabase in source.databases) {
-            destination.databases[sourceDatabase] = source.databases[sourceDatabase];
+            if (sourceDatabase) {
+                destination.databases[sourceDatabase] = source.databases[sourceDatabase];
+            }
         }
 
         for (const sourceColDefs in source.columnDefinitions) {
-            destination.columnDefinitions[sourceColDefs] = source.columnDefinitions[sourceColDefs];
+            if (sourceColDefs) {
+                destination.columnDefinitions[sourceColDefs] = source.columnDefinitions[sourceColDefs];
+            }
         }
 
         for (const sourceTypeDefs in source.typeDefinitions) {
-            destination.typeDefinitions[sourceTypeDefs] = source.typeDefinitions[sourceTypeDefs];
+            if (sourceTypeDefs) {
+                destination.typeDefinitions[sourceTypeDefs] = source.typeDefinitions[sourceTypeDefs];
+            }
         }
 
         for (const sourcePartialTables in source.partialTables) {
-            destination.partialTables[sourcePartialTables] = source.partialTables[sourcePartialTables];
+            if (sourcePartialTables) {
+                destination.partialTables[sourcePartialTables] = source.partialTables[sourcePartialTables];
+            }
         }
     }
 
@@ -164,7 +174,8 @@ namespace IncludeResolver {
         public constructor(columnDefinition: string, source: IDatabaseDef, destination: IDatabaseDef) {
             super(
                 ErrorBase.Code.INCLUDE_DUPLICATE_DATABASE,
-                `Column definition '${columnDefinition}' exists in both the DDFs ${source._ddfPath} and ${destination._ddfPath}.`
+                `Column definition '${columnDefinition}' exists in both` +
+                    ` the DDFs ${source._ddfPath} and ${destination._ddfPath}.`
             );
         }
     }
@@ -173,7 +184,8 @@ namespace IncludeResolver {
         public constructor(typeDefinition: string, source: IDatabaseDef, destination: IDatabaseDef) {
             super(
                 ErrorBase.Code.INCLUDE_DUPLICATE_DATABASE,
-                `Type definition '${typeDefinition}' exists in both the DDFs ${source._ddfPath} and ${destination._ddfPath}.`
+                `Type definition '${typeDefinition}' exists in both` +
+                    ` the DDFs ${source._ddfPath} and ${destination._ddfPath}.`
             );
         }
     }
@@ -182,7 +194,8 @@ namespace IncludeResolver {
         public constructor(partialTable: string, source: IDatabaseDef, destination: IDatabaseDef) {
             super(
                 ErrorBase.Code.INCLUDE_DUPLICATE_DATABASE,
-                `Partial table '${partialTable}' exists in both the DDFs ${source._ddfPath} and ${destination._ddfPath}.`
+                `Partial table '${partialTable}' exists in both` +
+                    ` the DDFs ${source._ddfPath} and ${destination._ddfPath}.`
             );
         }
     }

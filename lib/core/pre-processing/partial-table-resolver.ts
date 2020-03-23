@@ -1,8 +1,8 @@
+import _ from 'lodash';
 import { IDatabaseDefinition } from '../typings/database-definition';
 import ErrorBase from '../errors/error-base';
 import { ITable } from '../typings/table';
 import MultiError from '../errors/multi-error';
-import _ from 'lodash';
 import { IDatabase } from '../typings/database';
 import logger from '../logger';
 
@@ -12,7 +12,7 @@ namespace PartialTableResolver {
         columns: string[];
     };
 
-    export async function run(ddf: IDatabaseDefinition) {
+    export async function run(ddf: IDatabaseDefinition): Promise<void> {
         const errors = [] as ErrorBase[];
 
         Object.entries(ddf.databases).forEach(databaseEntry => {
@@ -44,7 +44,7 @@ namespace PartialTableResolver {
         tableName: string,
         table: ITable,
         indices: Indices
-    ) {
+    ): void {
         table._name = tableName;
 
         // use !table.parent to avoid re-processing of partial tables
@@ -75,7 +75,7 @@ namespace PartialTableResolver {
         checkForDuplicateColumns(table, indices);
     }
 
-    function checkForCircularInheritance(indices: Indices, table: ITable) {
+    function checkForCircularInheritance(indices: Indices, table: ITable): void {
         if (indices.children.includes(table.extends!)) {
             throw new CircularInheritanceError(table.extends!, indices.children);
         }
@@ -85,7 +85,12 @@ namespace PartialTableResolver {
      * Add the parent table of the passed table to the database._partialTables index (if it is not already on it).
      * Also processes the the base classes of the parent table
      */
-    function addPartialToDatabaseIndex(ddf: IDatabaseDefinition, database: IDatabase, table: ITable, indices: Indices) {
+    function addPartialToDatabaseIndex(
+        ddf: IDatabaseDefinition,
+        database: IDatabase,
+        table: ITable,
+        indices: Indices
+    ): void {
         if (!Object.keys(database._partialTables).includes(table.extends!)) {
             const ddfParentTable = ddf.partialTables[table.extends!];
 
@@ -103,7 +108,7 @@ namespace PartialTableResolver {
         }
     }
 
-    function checkForDuplicateColumns(table: ITable, indices: Indices) {
+    function checkForDuplicateColumns(table: ITable, indices: Indices): void {
         const columns = Object.keys(table.columns);
 
         for (const column of columns) {

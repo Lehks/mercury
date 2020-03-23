@@ -1,18 +1,17 @@
-import ConnectionDrivers from './connection-drivers';
 import { IDatabaseConnection } from '../typings/database-connection';
-import ConnectionDataProvider from './connection-data-provider';
-import _ from 'lodash';
-import Connection from './connection';
 import NotInitializedError from '../errors/not-initialized-error';
 import AlreadyInitializedError from '../errors/already-initialized-error';
+import ConnectionDrivers from './connection-drivers';
+import ConnectionDataProvider from './connection-data-provider';
+import Connection from './connection';
 import TransactionConnection from './transaction-connection';
 
 class ConnectionManager {
     public driver?: ConnectionDrivers.IConnectionManagerDriver;
     public isInitialized: boolean;
-    private connectionData: IDatabaseConnection;
-    private type: 'default' | 'admin';
-    private databaseName: string;
+    private readonly connectionData: IDatabaseConnection;
+    private readonly type: 'default' | 'admin';
+    private readonly databaseName: string;
 
     public constructor(connectionData: IDatabaseConnection, type: 'default' | 'admin', databaseName: string) {
         this.isInitialized = false;
@@ -21,7 +20,7 @@ class ConnectionManager {
         this.databaseName = databaseName;
     }
 
-    public async initialize() {
+    public async initialize(): Promise<void> {
         if (!this.isInitialized) {
             // driver cannot be in the import stmt, this is not possible: await import(this.connectionData.driver)
             const driver = this.connectionData.driver;
@@ -43,7 +42,7 @@ class ConnectionManager {
         }
     }
 
-    public async terminate() {
+    public async terminate(): Promise<void> {
         if (this.isInitialized) {
             await this.getDriver().terminate();
         } else {
@@ -52,7 +51,7 @@ class ConnectionManager {
     }
 
     public async query(sql: string, params: ConnectionManager.Parameters): Promise<ConnectionManager.IQueryResult> {
-        return await this.multiQuery(conn => conn.query(sql, params));
+        return this.multiQuery(conn => conn.query(sql, params));
     }
 
     public async multiQuery<T>(callback: ConnectionManager.QueryCallback<T>): Promise<T> {
@@ -114,7 +113,7 @@ class ConnectionManager {
         return ret;
     }
 
-    public getDriver() {
+    public getDriver(): ConnectionDrivers.IConnectionManagerDriver {
         return this.driver!;
     }
 }

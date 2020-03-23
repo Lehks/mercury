@@ -1,8 +1,8 @@
-import ConnectionDrivers from './connection-drivers';
-import ConnectionManager from './connection-manager';
+import _ from 'lodash';
 import ErrorBase from '../errors/error-base';
 import UnexpectedError from '../errors/unexpected-error';
-import _ from 'lodash';
+import ConnectionDrivers from './connection-drivers';
+import ConnectionManager from './connection-manager';
 
 class Connection {
     protected readonly manager: ConnectionManager;
