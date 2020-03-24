@@ -23,7 +23,7 @@ namespace CredentialsResolver {
         if (data) {
             if (typeof data.credentials === 'string') {
                 if (data.credentials !== 'ENVIRONMENT') {
-                    data.credentials = path.resolve(ddfPath, data.credentials);
+                    data.credentials = path.resolve(path.dirname(ddfPath), data.credentials);
                 }
             }
         }

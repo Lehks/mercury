@@ -11,7 +11,8 @@
                     "type": "string"
                 },
                 "default": {
-                    "$ref": "connection-credentials.schema.json#/definitions/connectionCredentials"
+                    "$ref": "connection-credentials.schema.json#/definitions/connectionCredentials",
+                    "default": {}
                 },
                 "admin": {
                     "$ref": "connection-credentials.schema.json#/definitions/connectionCredentials"

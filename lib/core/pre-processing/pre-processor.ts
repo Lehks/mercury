@@ -46,7 +46,9 @@ class PreProcessor {
         this.path = path;
     }
 
-    public async run(lastPhase: PreProcessor.Phase = 'resolve-names'): Promise<IDatabaseDefinition> {
+    public async run(
+        lastPhase: PreProcessor.Phase = PreProcessor.ALL_PHASES[PreProcessor.ALL_PHASES.length - 1]
+    ): Promise<IDatabaseDefinition> {
         logger.info('Starting preprocessing.');
         logger.info(`Will preprocess until phase '${lastPhase}'.`);
 
