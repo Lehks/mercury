@@ -9,6 +9,7 @@ import TransactionConnection from './transaction-connection';
 class ConnectionManager {
     public driver?: ConnectionDrivers.IConnectionManagerDriver;
     public isInitialized: boolean;
+    public isUsingDatabase: boolean;
     private readonly connectionData: IDatabaseConnection;
     private readonly type: 'default' | 'admin';
     private readonly databaseName: string;
@@ -18,9 +19,10 @@ class ConnectionManager {
         this.connectionData = connectionData;
         this.type = type;
         this.databaseName = databaseName;
+        this.isUsingDatabase = false;
     }
 
-    public async initialize(): Promise<void> {
+    public async initialize(useDatabase = true): Promise<void> {
         if (!this.isInitialized) {
             // driver cannot be in the import stmt, this is not possible: await import(this.connectionData.driver)
             const driver = this.connectionData.driver;
@@ -34,8 +36,12 @@ class ConnectionManager {
                 this.databaseName
             );
 
-            await this.getDriver().initialize(connectionDataProvider.getData());
-            await this.getDriver().useDatabase(this.databaseName);
+            await this.getDriver().initialize(await connectionDataProvider.getData());
+
+            if (useDatabase) {
+                await this.startUsingDatabase();
+            }
+
             this.isInitialized = true;
         } else {
             throw new AlreadyInitializedError();
@@ -50,8 +56,13 @@ class ConnectionManager {
         }
     }
 
+    public async startUsingDatabase(): Promise<void> {
+        await this.getDriver().useDatabase(this.databaseName);
+        this.isUsingDatabase = true;
+    }
+
     public async query(sql: string, params: ConnectionManager.Parameters): Promise<ConnectionManager.IQueryResult> {
-        return this.multiQuery(conn => conn.query(sql, params));
+        return this.multiQuery(async conn => conn.query(sql, params));
     }
 
     public async multiQuery<T>(callback: ConnectionManager.QueryCallback<T>): Promise<T> {
@@ -121,7 +132,7 @@ class ConnectionManager {
 namespace ConnectionManager {
     export type CellValue = string | number | boolean | Date | Buffer | null;
     export type Parameters = CellValue | CellValue[];
-    export type QueryCallback<T> = (conn: any) => Promise<T>;
+    export type QueryCallback<T> = (conn: Connection) => Promise<T>;
 
     export interface IRow {
         [key: string]: CellValue | undefined;
