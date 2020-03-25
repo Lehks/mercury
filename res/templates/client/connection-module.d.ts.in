@@ -1,0 +1,4 @@
+import ConnectionManager from 'mercury/dist/lib/core/connection/connection-manager';
+
+declare const _default: ConnectionManager;
+export = _default;

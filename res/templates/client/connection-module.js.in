@@ -1,0 +1,7 @@
+const ConnectionManager = require('mercury/dist/lib/core/connection/connection-manager');
+
+const connectionData = @connectionData@;
+
+const databaseName = '@databaseName@';
+
+module.exports = new ConnectionManager(connectionData, 'default', databaseName);

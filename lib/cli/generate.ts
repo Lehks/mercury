@@ -3,6 +3,7 @@ import packageJSON from '../../package.json';
 import PreProcessor from '../core/pre-processing/pre-processor';
 import logger from '../core/logger.js';
 import SQLGenerator from '../core/generation/sql/sql-generator.js';
+import ClientGenerator from '../core/generation/client/client-generator';
 import Util from './util';
 
 namespace Generate {
@@ -45,6 +46,7 @@ namespace Generate {
             }
 
             await SQLGenerator.run(ddf);
+            await ClientGenerator.run(ddf);
         } catch (error) {
             logger.error(error);
         }
