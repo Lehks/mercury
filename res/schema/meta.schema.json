@@ -16,7 +16,15 @@
                 },
                 "naming": {
                     "$ref": "#/definitions/globalLevelNamingConventions",
-                    "default": {}
+                    "default": {
+                        "rdbmsDatabaseNameConvention": "minus-case",
+                        "rdbmsTableNameConvention": "minus-case",
+                        "rdbmsColumnNameConvention": "snake-case",
+                        "classNameConvention": "upper-camel-case",
+                        "moduleNameConvention": "minus-case",
+                        "constantNameConvention": "constant-case",
+                        "methodNameConvention": "camel-case"
+                    }
                 },
                 "singularClassNames": {
                     "type": "boolean",
