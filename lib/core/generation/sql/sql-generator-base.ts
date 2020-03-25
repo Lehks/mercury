@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import { IConcreteType } from '../../typings/type';
 import { TriggerAction } from '../../typings/foreign-key';
 import { IDatabase } from '../../typings/database';
@@ -9,8 +10,6 @@ import Util from './util';
 
 abstract class SQLGeneratorBase {
     public async run(name: string, database: IDatabase, outDir: string): Promise<void> {
-        logger.debug(`Generating SQL for database '${name}'.`);
-
         logger.debug('Generating create database SQL.');
         const sql = [await this.createDatabase({ name: database.meta.rdbmsName })];
         logger.debug('Successfully generated create database SQL.');
@@ -125,7 +124,9 @@ abstract class SQLGeneratorBase {
     }
 
     private async write(outDir: string, databaseName: string, sql: string[]): Promise<void> {
-        await fs.promises.writeFile(Util.getSQLFilePath(outDir, databaseName), sql.join('\n'));
+        const filePath = Util.getSQLFilePath(outDir, databaseName);
+        await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
+        await fs.promises.writeFile(filePath, sql.join('\n'));
     }
 
     protected abstract async createDatabase(database: NS.IDatabase): Promise<string>;
