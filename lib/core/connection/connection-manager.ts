@@ -57,11 +57,15 @@ class ConnectionManager {
     }
 
     public async startUsingDatabase(): Promise<void> {
-        await this.getDriver().useDatabase(this.databaseName);
+        await this.query(
+            await this.getDriver()
+                .getSQLQueries()
+                .useDatabase(this.databaseName)
+        );
         this.isUsingDatabase = true;
     }
 
-    public async query(sql: string, params: ConnectionManager.Parameters): Promise<ConnectionManager.IQueryResult> {
+    public async query(sql: string, params?: ConnectionManager.Parameters): Promise<ConnectionManager.IQueryResult> {
         return this.multiQuery(async conn => conn.query(sql, params));
     }
 
@@ -135,7 +139,7 @@ namespace ConnectionManager {
     export type QueryCallback<T> = (conn: Connection) => Promise<T>;
 
     export interface IRow {
-        [key: string]: CellValue | undefined;
+        [key: string]: CellValue;
     }
 
     export interface IQueryResult {

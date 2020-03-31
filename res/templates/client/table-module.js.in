@@ -1,0 +1,93 @@
+[header]
+{
+    "array": {
+        "arrayJoin": "\n\n"
+    }
+}
+[header]
+/* eslint-disable */
+/* tslint:disable */
+const _ = require('lodash');
+const TableUtils = require('./table-utils');
+const ConnectionManager = require('../@connectionModule@');
+
+class @tableName@ {
+    static #DATA = {
+        connectionManager: ConnectionManager,
+        primaryKeyNames: @primaryKeyNames@,
+        table: @rdbmsTableName@
+    };
+
+    static #RDBMS_TO_PROPERTY_NAME_MAP = @rdbmsToPropertyNameMap@;
+
+    static #PROPERTY_TO_RDBMS_NAME_MAP = @propertyToRdbmsNameMap@;
+
+@columnConstants:#array@
+
+    primaryKey;
+    #primaryKeyArray;
+
+    constructor(primaryKey) {
+        this.#primaryKeyArray = [primaryKey];
+        this.primaryKey = primaryKey;
+    }
+
+    static async insert(data, connection) {
+        const result = await TableUtils.insert(
+            TestTable.#DATA,
+            data,
+            TestTable.#PROPERTY_TO_RDBMS_NAME_MAP,
+            connection
+        );
+
+        return new TestTable(result.insertId);
+    }
+
+    static async findById(primaryKey, checkExistence = true, connection) {
+        const ret = new TestTable(primaryKey);
+
+        if (checkExistence && !(await ret.exists(connection))) {
+            throw new Error();
+        }
+
+        return ret;
+    }
+
+@getters:#array@
+
+    async multiGet(columns, connection) {
+        return TableUtils.multiGetInternal(
+            TestTable.#DATA,
+            columns.map(col => col.rdbmsName),
+            this.#primaryKeyArray,
+            TestTable.#RDBMS_TO_PROPERTY_NAME_MAP,
+            connection
+        );
+    }
+
+    async multiSet(values, connection) {
+        return TableUtils.multiSetInternal(
+            TestTable.#DATA,
+            values,
+            this.#primaryKeyArray,
+            TestTable.#PROPERTY_TO_RDBMS_NAME_MAP,
+            connection
+        );
+    }
+
+@setters:#array@
+
+    equals(other) {
+        return _.isEqual(this.#primaryKeyArray, other.#primaryKeyArray);
+    }
+
+    async exists(connection) {
+        return TableUtils.exists(TestTable.#DATA, this.#primaryKeyArray, connection);
+    }
+
+    async delete(connection) {
+        return TableUtils.deleteInternal(TestTable.#DATA, this.#primaryKeyArray, connection);
+    }
+}
+
+module.exports = TestTable;

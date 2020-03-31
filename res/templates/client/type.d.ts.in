@@ -1,0 +1,39 @@
+[header]
+{
+    "typeMap": {
+        "switch": {
+            "cases": {
+                "var-char": "string",
+                "char": "string",
+                "small-int": "number",
+                "int": "number",
+                "big-int": "number",
+                "float": "number",
+                "double": "number",
+                "date": "Date",
+                "time": "Date",
+                "date-time": "Date",
+                "boolean": "boolean",
+                "enum": "@literals:#literals@",
+                "var-char-null": "string | null",
+                "char-null": "string | null",
+                "small-int-null": "number | null",
+                "int-null": "number | null",
+                "big-int-null": "number | null",
+                "float-null": "number | null",
+                "double-null": "number | null",
+                "date-null": "Date | null",
+                "time-null": "Date | null",
+                "date-time-null": "Date | null",
+                "boolean-null": "boolean | null",
+                "enum-null": "$literals:#literals$ | null"
+            }
+        }
+    },
+    "literals": {
+        "arrayJoin": " | ",
+        "padLeft": "'",
+        "padRight": "'"
+    }
+}
+[header]@type:#typeMap@

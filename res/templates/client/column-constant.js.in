@@ -1,0 +1,5 @@
+    static @constantName@ = {
+        rdbmsName: '@rdbmsName@',
+        propertyName: '@propertyName@',
+        table: '@tableName@'
+    };

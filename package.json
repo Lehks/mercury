@@ -34,7 +34,7 @@
     "dependencies": {
         "ajv": "^6.11.0",
         "change-case": "^4.1.1",
-        "file-configurator": "^1.0.1",
+        "file-configurator": "^1.0.2",
         "lodash": "^4.17.15",
         "winston": "^3.2.1",
         "yargs": "^15.1.0"

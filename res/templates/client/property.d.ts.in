@@ -1,0 +1,12 @@
+[header]
+{
+    "optional": {
+        "switch": {
+            "cases": {
+                "true": "?",
+                "false": ""
+            }
+        }
+    }
+}
+[header]        @name@@optional:#optional@: @type@;

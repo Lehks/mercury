@@ -8,7 +8,7 @@ namespace PrimaryKeyResolver {
     export async function run(ddf: IDatabaseDefinition): Promise<void> {
         Object.values(ddf.databases).forEach(database => {
             Object.entries(database.tables).forEach(entry => {
-                resolverPrimaryKeys(entry[1]);
+                resolvePrimaryKeys(entry[1]);
 
                 if (entry[1].primaryKey.length === 0) {
                     throw new MissingPrimaryKey(entry[0]);
@@ -19,12 +19,12 @@ namespace PrimaryKeyResolver {
         });
     }
 
-    function resolverPrimaryKeys(table: ITable): void {
+    function resolvePrimaryKeys(table: ITable): void {
         resolveOwnPrimaryKey(table);
 
         // resolve parent PKs and add parent PKs to this table
         if (table._parent) {
-            resolverPrimaryKeys(table._parent);
+            resolvePrimaryKeys(table._parent);
             (table.primaryKey as ICompoundPrimaryKey).push(...(table._parent.primaryKey as ICompoundPrimaryKey));
         }
     }

@@ -1,0 +1,53 @@
+[header]
+{
+    "array": {
+        "arrayJoin": "\n"
+    },
+    "stringify": {
+        "padLeft": "'",
+        "padRight": "'"
+    }
+}
+[header]
+import TableUtils from 'mercury/dist/lib/core/generation/client/table-utils';
+import Connection from 'mercury/dist/lib/core/connection/connection';
+
+declare class @tableName@ {
+    public readonly primaryKey: @tableName@.IPrimaryKey;
+
+@columnConstants:#array@
+
+    private constructor();
+
+    public static insert(data: @tableName@.IInsertData, connection?: Connection): Promise<@tableName@>;
+    public static findById(primaryKey: @tableName@.IPrimaryKey, checkExistence?: boolean, connection?: Connection): Promise<@tableName@>;
+@getters:#array@
+    public multiGet(columns: @tableName@.ITestTableColumnBase[], connection?: Connection): Promise<@tableName@.IMultiGetResult>;
+@setters:#array@
+    public multiSet(values: @tableName@.IMultiSetData, connection?: Connection): Promise<void>;
+    public equals(other: @tableName@): boolean;
+    public exists(connection?: Connection): Promise<boolean>;
+    public delete(connection?: Connection): Promise<void>;
+}
+
+declare namespace @tableName@ {
+    type IPrimaryKey = @primaryKeyType@;
+
+    interface IColumnBase extends TableUtils.IColumnLiteralBase {
+        table: @rdbmsTableName:#stringify@
+    }
+
+    interface IMultiGetResult {
+@multiGetProperties:#array@
+    }
+
+    interface IMultiSetData {
+@multiSetProperties:#array@
+    }
+
+    interface IInsertData {
+@insertDataProperties:#array@
+    }
+}
+
+export = @tableName@;

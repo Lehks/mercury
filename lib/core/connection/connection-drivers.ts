@@ -9,7 +9,7 @@ namespace ConnectionDrivers {
         terminate: () => Promise<void>;
         getConnection: () => Promise<IConnectionDriver>;
         mapErrors: (error: any) => ErrorBase;
-        useDatabase: (database: string) => Promise<void>;
+        getSQLQueries: () => ISQLQueries;
     }
 
     export interface IConnectionDriver {
@@ -18,6 +18,16 @@ namespace ConnectionDrivers {
         commitTransaction: () => Promise<void>;
         rollbackTransaction: () => Promise<void>;
         end: () => Promise<void>;
+    }
+
+    export interface ISQLQueries {
+        useDatabase: (databaseName: string) => Promise<string>;
+        getQuery: (table: string, column: string, pkNames: string[]) => Promise<string>;
+        multiGetQuery: (table: string, columns: string[], pkNames: string[]) => Promise<string>;
+        setQuery: (table: string, column: string, pkNames: string[]) => Promise<string>;
+        multiSetQuery: (table: string, columns: string[], pkNames: string[]) => Promise<string>;
+        insertQuery: (table: string, columns: string[]) => Promise<string>;
+        deleteQuery: (table: string, pkNames: string[]) => Promise<string>;
     }
 }
 

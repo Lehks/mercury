@@ -14,11 +14,11 @@ abstract class ClientGeneratorBase {
         logger.debug('Done generating connection module.');
 
         logger.debug('Generating table modules.');
-        const tableModules = await this.generateTableModules(database.tables);
+        const tableModules = await this.generateTableModules(database.tables, database);
         logger.debug('Done generating table modules.');
 
         logger.debug('Generating partial table modules.');
-        const partialTableModules = await this.generateTableModules(database._partialTables);
+        const partialTableModules = await this.generatePartialTableModules(database._partialTables);
         logger.debug('Done generating partial table modules.');
 
         logger.debug('Generating query builder module.');
@@ -44,7 +44,7 @@ abstract class ClientGeneratorBase {
         logger.debug('Done writing query builder module.');
     }
 
-    private async generateTableModules(tables: DatabaseTableList): Promise<TableModulesList> {
+    private async generateTableModules(tables: DatabaseTableList, database: IDatabase): Promise<TableModulesList> {
         const ret: TableModulesList = [];
 
         for (const tableName in tables) {
@@ -53,7 +53,24 @@ abstract class ClientGeneratorBase {
 
                 ret.push({
                     name: table.meta.moduleName,
-                    code: await this.generateTableModule(table)
+                    code: await this.generateTableModule(table, database)
+                });
+            }
+        }
+
+        return ret;
+    }
+
+    private async generatePartialTableModules(tables: DatabaseTableList): Promise<TableModulesList> {
+        const ret: TableModulesList = [];
+
+        for (const tableName in tables) {
+            if (tables.hasOwnProperty(tableName)) {
+                const table = tables[tableName];
+
+                ret.push({
+                    name: table.meta.moduleName,
+                    code: await this.generatePartialTableModule(table)
                 });
             }
         }
@@ -76,7 +93,10 @@ abstract class ClientGeneratorBase {
         }
     }
     protected abstract async generateConnectionModule(database: IDatabase): Promise<ClientGeneratorBase.IModuleCode>;
-    protected abstract async generateTableModule(table: ITable): Promise<ClientGeneratorBase.IModuleCode>;
+    protected abstract async generateTableModule(
+        table: ITable,
+        database: IDatabase
+    ): Promise<ClientGeneratorBase.IModuleCode>;
     protected abstract async generatePartialTableModule(table: ITable): Promise<ClientGeneratorBase.IModuleCode>;
     protected abstract async generateQueryBuilderModule(database: IDatabase): Promise<ClientGeneratorBase.IModuleCode>;
 }
