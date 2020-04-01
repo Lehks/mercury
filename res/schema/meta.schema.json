@@ -23,7 +23,8 @@
                         "classNameConvention": "upper-camel-case",
                         "moduleNameConvention": "minus-case",
                         "constantNameConvention": "constant-case",
-                        "methodNameConvention": "camel-case"
+                        "methodNameConvention": "camel-case",
+                        "propertyNameConvention": "camel-case"
                     }
                 },
                 "singularClassNames": {
@@ -89,6 +90,9 @@
                     "type": "string"
                 },
                 "constantName": {
+                    "type": "string"
+                },
+                "propertyName": {
                     "type": "string"
                 },
                 "naming": {
@@ -174,6 +178,13 @@
                     ]
                 },
                 "constantNameConvention": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/namingConvention"
+                        }
+                    ]
+                },
+                "propertyNameConvention": {
                     "allOf": [
                         {
                             "$ref": "#/definitions/namingConvention"

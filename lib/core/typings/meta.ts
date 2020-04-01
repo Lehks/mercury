@@ -28,6 +28,7 @@ declare namespace Meta {
         getterName: string;
         setterName: string;
         constantName: string;
+        propertyName: string;
         naming: IColumnLevelNamingConventions;
     }
 
@@ -47,6 +48,7 @@ declare namespace Meta {
         rdbmsColumnNameConvention: NamingConvention;
         methodNameConvention: NamingConvention;
         constantNameConvention: NamingConvention;
+        propertyNameConvention: NamingConvention;
     }
 }
 

@@ -84,6 +84,10 @@ namespace NameResolver {
         if (!column.meta.rdbmsName) {
             column.meta.rdbmsName = convertName(columnName, conventions.rdbmsColumnNameConvention);
         }
+
+        if (!column.meta.propertyName) {
+            column.meta.propertyName = convertName(columnName, conventions.propertyNameConvention);
+        }
     }
 
     function convertName(name: string, convention: Meta.NamingConvention): string {
@@ -160,6 +164,11 @@ namespace NameResolver {
         columnConventions.rdbmsColumnNameConvention = mergeConvention(
             tableConventions.rdbmsColumnNameConvention,
             columnConventions.rdbmsColumnNameConvention
+        );
+
+        columnConventions.propertyNameConvention = mergeConvention(
+            tableConventions.propertyNameConvention,
+            columnConventions.propertyNameConvention
         );
     }
 

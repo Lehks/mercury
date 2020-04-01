@@ -55,7 +55,7 @@ namespace TableModuleGenerator {
 
         for (const col of Object.values(table.columns)) {
             const column = col as IConcreteColumn;
-            ret[column.meta.rdbmsName] = column.meta.rdbmsName; // todo actual property name
+            ret[column.meta.rdbmsName] = column.meta.propertyName;
         }
 
         return ret;
@@ -66,7 +66,7 @@ namespace TableModuleGenerator {
 
         for (const col of Object.values(table.columns)) {
             const column = col as IConcreteColumn;
-            ret[column.meta.rdbmsName] = column.meta.rdbmsName; // todo actual property name
+            ret[column.meta.propertyName] = column.meta.rdbmsName;
         }
 
         return ret;
@@ -118,7 +118,7 @@ namespace TableModuleGenerator {
         return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'column-constant.js.in'), {
             constantName: concreteColumn.meta.constantName,
             rdbmsName: concreteColumn.meta.rdbmsName,
-            propertyName: concreteColumn.meta.rdbmsName, // todo actual property name
+            propertyName: concreteColumn.meta.propertyName,
             tableName: table
         });
     }
@@ -164,8 +164,7 @@ namespace TableModuleGenerator {
                     compoundPk.map(async name => {
                         const column = getColumn(table, name);
 
-                        // todo property name
-                        const propertyName = column.meta.rdbmsName;
+                        const propertyName = column.meta.propertyName;
                         const type = await generateType(column);
                         return generateProperty(propertyName, type);
                     })
@@ -199,7 +198,7 @@ namespace TableModuleGenerator {
                 const concreteColumn = col as IConcreteColumn;
 
                 return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'property.d.ts.in'), {
-                    name: concreteColumn.meta.rdbmsName, // todo property name
+                    name: concreteColumn.meta.propertyName,
                     type: await generateType(concreteColumn)
                 });
             })
@@ -212,7 +211,7 @@ namespace TableModuleGenerator {
                 const concreteColumn = col as IConcreteColumn;
 
                 return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'property.d.ts.in'), {
-                    name: concreteColumn.meta.rdbmsName, // todo property name
+                    name: concreteColumn.meta.propertyName,
                     type: await generateType(concreteColumn),
                     optional: true
                 });
@@ -226,7 +225,7 @@ namespace TableModuleGenerator {
                 const concreteColumn = col as IConcreteColumn;
 
                 return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'property.d.ts.in'), {
-                    name: concreteColumn.meta.rdbmsName, // todo property name
+                    name: concreteColumn.meta.propertyName,
                     type: await generateType(concreteColumn),
                     optional: (concreteColumn.type as IConcreteType).default !== undefined
                 });
