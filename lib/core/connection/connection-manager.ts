@@ -36,12 +36,12 @@ class ConnectionManager {
                 this.databaseName
             );
 
-            await this.getDriver().initialize(await connectionDataProvider.getData());
+            await this.getDriver().initialize(
+                await connectionDataProvider.getData(),
+                useDatabase ? this.databaseName : undefined
+            );
 
-            if (useDatabase) {
-                await this.startUsingDatabase();
-            }
-
+            // startUsingDatabase() calls query(), so the isInitialized needs to be true
             this.isInitialized = true;
         } else {
             throw new AlreadyInitializedError();

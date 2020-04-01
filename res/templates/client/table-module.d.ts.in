@@ -11,6 +11,7 @@
 [header]
 import TableUtils from 'mercury/dist/lib/core/generation/client/table-utils';
 import Connection from 'mercury/dist/lib/core/connection/connection';
+import ConnectionManager from 'mercury/dist/lib/core/connection/connection-manager';
 
 declare class @tableName@ {
     public readonly primaryKey: @tableName@.IPrimaryKey;
@@ -19,10 +20,11 @@ declare class @tableName@ {
 
     private constructor();
 
+    public static getConnectionManager(): ConnectionManager;
     public static insert(data: @tableName@.IInsertData, connection?: Connection): Promise<@tableName@>;
     public static findById(primaryKey: @tableName@.IPrimaryKey, checkExistence?: boolean, connection?: Connection): Promise<@tableName@>;
 @getters:#array@
-    public multiGet(columns: @tableName@.ITestTableColumnBase[], connection?: Connection): Promise<@tableName@.IMultiGetResult>;
+    public multiGet(columns: @tableName@.IColumnBase[], connection?: Connection): Promise<@tableName@.IMultiGetResult>;
 @setters:#array@
     public multiSet(values: @tableName@.IMultiSetData, connection?: Connection): Promise<void>;
     public equals(other: @tableName@): boolean;

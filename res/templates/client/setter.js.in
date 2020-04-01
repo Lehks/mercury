@@ -1,3 +1,3 @@
     async @methodName@(value, connection) {
-        return TableUtils.set(TestTable.#DATA, TestTable.@constantName@.rdbmsName, this.#primaryKeyArray, value, connection);
+        return TableUtils.set(@tableName@.#DATA, @tableName@.@constantName@.rdbmsName, this.#primaryKeyArray, value, connection);
     }

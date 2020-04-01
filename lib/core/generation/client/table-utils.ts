@@ -59,7 +59,7 @@ namespace TableUtils {
         primaryKeyValues: ConnectionManager.CellValue[],
         connection?: Connection
     ): Promise<T> {
-        const sql = await getSQL(data).getQuery(data.table, column, data.primaryKeyNames);
+        const sql = await getSQL(data).getQuery(data.table, [column], data.primaryKeyNames);
         const result = await query(data, sql, primaryKeyValues, connection);
 
         if (result.rows.length > 0) {
@@ -76,8 +76,8 @@ namespace TableUtils {
         nameMap: StringMap,
         connection?: Connection
     ): Promise<T> {
-        const sql = await getSQL(data).multiGetQuery(data.table, columns, data.primaryKeyNames);
-        const result = await query(data, sql, data.primaryKeyNames, connection);
+        const sql = await getSQL(data).getQuery(data.table, columns, data.primaryKeyNames);
+        const result = await query(data, sql, primaryKeyValues, connection);
 
         if (result.rows.length > 0) {
             return (rename(result.rows[0], nameMap) as unknown) as T;
@@ -93,7 +93,7 @@ namespace TableUtils {
         value: T,
         connection?: Connection
     ): Promise<void> {
-        const sql = await getSQL(data).setQuery(data.table, column, data.primaryKeyNames);
+        const sql = await getSQL(data).setQuery(data.table, [column], data.primaryKeyNames);
         const result = await query(data, sql, [value, ...primaryKeyValues], connection);
 
         if (result.affectedRows !== 1) {
@@ -111,11 +111,7 @@ namespace TableUtils {
         // remove possibility of 'undefined' values
         const row = values as ConnectionManager.IRow;
 
-        const sql = await getSQL(data).multiSetQuery(
-            data.table,
-            Object.keys(rename(row, nameMap)),
-            data.primaryKeyNames
-        );
+        const sql = await getSQL(data).setQuery(data.table, Object.keys(rename(row, nameMap)), data.primaryKeyNames);
         const result = await query(data, sql, [...Object.values(row), ...primaryKeyValues], connection);
 
         if (result.affectedRows === 0) {
@@ -162,7 +158,7 @@ namespace TableUtils {
         connection?: Connection
     ): Promise<void> {
         const sql = await getSQL(data).deleteQuery(data.table, data.primaryKeyNames);
-        const result = await query(data, sql, data.primaryKeyNames, connection);
+        const result = await query(data, sql, primaryKeyValues, connection);
 
         if (result.affectedRows === 0) {
             throw new Error();

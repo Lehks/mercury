@@ -5,7 +5,7 @@ import ConnectionDataProvider from './connection-data-provider';
 namespace ConnectionDrivers {
     export interface IConnectionManagerDriver {
         getConnectionDataRequirements: () => ConnectionDataProvider.IRequirements;
-        initialize: (provider: ConnectionDataProvider.IConnectionData) => Promise<void>;
+        initialize: (provider: ConnectionDataProvider.IConnectionData, database?: string) => Promise<void>;
         terminate: () => Promise<void>;
         getConnection: () => Promise<IConnectionDriver>;
         mapErrors: (error: any) => ErrorBase;
@@ -22,10 +22,8 @@ namespace ConnectionDrivers {
 
     export interface ISQLQueries {
         useDatabase: (databaseName: string) => Promise<string>;
-        getQuery: (table: string, column: string, pkNames: string[]) => Promise<string>;
-        multiGetQuery: (table: string, columns: string[], pkNames: string[]) => Promise<string>;
-        setQuery: (table: string, column: string, pkNames: string[]) => Promise<string>;
-        multiSetQuery: (table: string, columns: string[], pkNames: string[]) => Promise<string>;
+        getQuery: (table: string, columns: string[], pkNames: string[]) => Promise<string>;
+        setQuery: (table: string, columns: string[], pkNames: string[]) => Promise<string>;
         insertQuery: (table: string, columns: string[]) => Promise<string>;
         deleteQuery: (table: string, pkNames: string[]) => Promise<string>;
     }

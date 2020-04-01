@@ -1,3 +1,3 @@
     async @methodName@(connection) {
-        return TableUtils.get(TestTable.#DATA, TestTable.@constantName@.rdbmsName, this.#primaryKeyArray, connection);
+        return TableUtils.get(@tableName@.#DATA, @tableName@.@constantName@.rdbmsName, this.#primaryKeyArray, connection);
     }

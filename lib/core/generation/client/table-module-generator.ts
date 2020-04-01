@@ -27,8 +27,12 @@ namespace TableModuleGenerator {
                 columnConstants: await Promise.all(
                     Object.values(table.columns).map(async col => generateConstant(col, table._name))
                 ),
-                getters: await Promise.all(Object.values(table.columns).map(async col => generateGetter(col))),
-                setters: await Promise.all(Object.values(table.columns).map(async col => generateSetter(col)))
+                getters: await Promise.all(
+                    Object.values(table.columns).map(async col => generateGetter(col, table.meta.className))
+                ),
+                setters: await Promise.all(
+                    Object.values(table.columns).map(async col => generateSetter(col, table.meta.className))
+                )
             }),
             typings: await FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'table-module.d.ts.in'), {
                 tableName: table.meta.className,
@@ -51,7 +55,7 @@ namespace TableModuleGenerator {
 
         for (const col of Object.values(table.columns)) {
             const column = col as IConcreteColumn;
-            ret[column.meta.rdbmsName] = column.meta.constantName; // todo actual property name
+            ret[column.meta.rdbmsName] = column.meta.rdbmsName; // todo actual property name
         }
 
         return ret;
@@ -62,18 +66,19 @@ namespace TableModuleGenerator {
 
         for (const col of Object.values(table.columns)) {
             const column = col as IConcreteColumn;
-            ret[column.meta.constantName] = column.meta.rdbmsName; // todo actual property name
+            ret[column.meta.rdbmsName] = column.meta.rdbmsName; // todo actual property name
         }
 
         return ret;
     }
 
-    async function generateGetter(column: IColumn): Promise<string> {
+    async function generateGetter(column: IColumn, table: string): Promise<string> {
         const concreteColumn = column as IConcreteColumn;
 
         return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'getter.js.in'), {
             methodName: concreteColumn.meta.getterName,
-            constantName: concreteColumn.meta.constantName
+            constantName: concreteColumn.meta.constantName,
+            tableName: table
         });
     }
 
@@ -87,12 +92,13 @@ namespace TableModuleGenerator {
         });
     }
 
-    async function generateSetter(column: IColumn): Promise<string> {
+    async function generateSetter(column: IColumn, table: string): Promise<string> {
         const concreteColumn = column as IConcreteColumn;
 
         return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'setter.js.in'), {
             methodName: concreteColumn.meta.setterName,
-            constantName: concreteColumn.meta.constantName
+            constantName: concreteColumn.meta.constantName,
+            tableName: table
         });
     }
 
