@@ -9,7 +9,7 @@ import { ICompoundPrimaryKey } from '../../typings/primary-key';
 import TableUtils from './table-utils';
 import ClientGeneratorBase from './client-generator-base';
 
-const TEMPLATE_ROOT = path.join(__dirname, '..', '..', '..', '..', '..', 'res', 'templates');
+const TEMPLATE_ROOT = path.join(__dirname, '..', '..', '..', '..', '..', 'res', 'templates', 'client', 'table');
 
 namespace TableModuleGenerator {
     export async function generateTableModule(
@@ -17,7 +17,7 @@ namespace TableModuleGenerator {
         database: IDatabase
     ): Promise<ClientGeneratorBase.IModuleCode> {
         return {
-            js: await FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'table-module.js.in'), {
+            js: await FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'table-module.js.in'), {
                 tableName: table.meta.className,
                 connectionModule: database.meta.moduleName,
                 rdbmsTableName: table.meta.rdbmsName,
@@ -34,7 +34,7 @@ namespace TableModuleGenerator {
                     Object.values(table.columns).map(async col => generateSetter(col, table.meta.className))
                 )
             }),
-            typings: await FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'table-module.d.ts.in'), {
+            typings: await FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'table-module.d.ts.in'), {
                 tableName: table.meta.className,
                 primaryKeyType: await makePrimaryKeyType(table),
                 rdbmsTableName: table.meta.rdbmsName,
@@ -75,7 +75,7 @@ namespace TableModuleGenerator {
     async function generateGetter(column: IColumn, table: string): Promise<string> {
         const concreteColumn = column as IConcreteColumn;
 
-        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'getter.js.in'), {
+        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'getter.js.in'), {
             methodName: concreteColumn.meta.getterName,
             constantName: concreteColumn.meta.constantName,
             tableName: table
@@ -86,7 +86,7 @@ namespace TableModuleGenerator {
         const concreteColumn = column as IConcreteColumn;
 
         // (concreteColumn.type as IEnum) might fail, but in that case, the value 'undefined' is fine in the context
-        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'getter.d.ts.in'), {
+        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'getter.d.ts.in'), {
             methodName: concreteColumn.meta.getterName,
             type: await generateType(column)
         });
@@ -95,7 +95,7 @@ namespace TableModuleGenerator {
     async function generateSetter(column: IColumn, table: string): Promise<string> {
         const concreteColumn = column as IConcreteColumn;
 
-        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'setter.js.in'), {
+        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'setter.js.in'), {
             methodName: concreteColumn.meta.setterName,
             constantName: concreteColumn.meta.constantName,
             tableName: table
@@ -106,7 +106,7 @@ namespace TableModuleGenerator {
         const concreteColumn = column as IConcreteColumn;
 
         // (concreteColumn.type as IEnum) might fail, but in that case, the value 'undefined' is fine in the context
-        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'setter.d.ts.in'), {
+        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'setter.d.ts.in'), {
             methodName: concreteColumn.meta.setterName,
             type: await generateType(column)
         });
@@ -115,7 +115,7 @@ namespace TableModuleGenerator {
     async function generateConstant(column: IColumn, table: string): Promise<string> {
         const concreteColumn = column as IConcreteColumn;
 
-        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'column-constant.js.in'), {
+        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'column-constant.js.in'), {
             constantName: concreteColumn.meta.constantName,
             rdbmsName: concreteColumn.meta.rdbmsName,
             propertyName: concreteColumn.meta.propertyName,
@@ -126,7 +126,7 @@ namespace TableModuleGenerator {
     async function generateConstantType(column: IColumn, table: string): Promise<string> {
         const concreteColumn = column as IConcreteColumn;
 
-        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'column-constant.d.ts.in'), {
+        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'column-constant.d.ts.in'), {
             constantName: concreteColumn.meta.constantName,
             tableName: table
         });
@@ -135,7 +135,7 @@ namespace TableModuleGenerator {
     async function generateType(column: IColumn): Promise<string> {
         const concreteColumn = column as IConcreteColumn;
 
-        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'type.d.ts.in'), {
+        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'type.d.ts.in'), {
             type: makeTypeHelper(column),
             literals: (concreteColumn.type as IEnum).literals
         });
@@ -159,7 +159,7 @@ namespace TableModuleGenerator {
 
             return generateType(column);
         } else {
-            return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'primary-key-object.d.ts.in'), {
+            return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'primary-key-object.d.ts.in'), {
                 properties: await Promise.all(
                     compoundPk.map(async name => {
                         const column = getColumn(table, name);
@@ -174,7 +174,7 @@ namespace TableModuleGenerator {
     }
 
     async function generateProperty(name: string, type: string): Promise<string> {
-        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'property.d.ts.in'), {
+        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'property.d.ts.in'), {
             name,
             type
         });
@@ -197,7 +197,7 @@ namespace TableModuleGenerator {
             Object.values(table.columns).map(async col => {
                 const concreteColumn = col as IConcreteColumn;
 
-                return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'property.d.ts.in'), {
+                return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'property.d.ts.in'), {
                     name: concreteColumn.meta.propertyName,
                     type: await generateType(concreteColumn)
                 });
@@ -210,7 +210,7 @@ namespace TableModuleGenerator {
             Object.values(table.columns).map(async col => {
                 const concreteColumn = col as IConcreteColumn;
 
-                return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'property.d.ts.in'), {
+                return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'property.d.ts.in'), {
                     name: concreteColumn.meta.propertyName,
                     type: await generateType(concreteColumn),
                     optional: true
@@ -224,7 +224,7 @@ namespace TableModuleGenerator {
             Object.values(table.columns).map(async col => {
                 const concreteColumn = col as IConcreteColumn;
 
-                return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'property.d.ts.in'), {
+                return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'property.d.ts.in'), {
                     name: concreteColumn.meta.propertyName,
                     type: await generateType(concreteColumn),
                     optional: (concreteColumn.type as IConcreteType).default !== undefined

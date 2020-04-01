@@ -5,16 +5,16 @@ import { ITable } from '../../typings/table';
 import ClientGeneratorBase from './client-generator-base';
 import TableModuleGenerator from './table-module-generator';
 
-const TEMPLATE_ROOT = path.join(__dirname, '..', '..', '..', '..', '..', 'res', 'templates');
+const TEMPLATE_ROOT = path.join(__dirname, '..', '..', '..', '..', '..', 'res', 'templates', 'client');
 
 class JSGenerator extends ClientGeneratorBase {
     protected async generateConnectionModule(database: IDatabase): Promise<ClientGeneratorBase.IModuleCode> {
         return {
-            js: await FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'connection-module.js.in'), {
+            js: await FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'connection-module.js.in'), {
                 connectionData: JSON.stringify(database.connection, null, 4),
                 databaseName: database.meta.moduleName
             }),
-            typings: await FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'client', 'connection-module.d.ts.in'), {
+            typings: await FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'connection-module.d.ts.in'), {
                 connectionData: JSON.stringify(database.connection, null, 4),
                 databaseName: database.meta.moduleName
             })
