@@ -26,6 +26,7 @@ abstract class ClientGeneratorBase {
         logger.debug('Done generating query builder module.');
 
         const moduleSubdirectory = path.join(outDir, database.meta.moduleName);
+        const partialTableSubdirectory = path.join(moduleSubdirectory, 'partial-tables');
 
         logger.debug('Writing connection module.');
         await this.write(outDir, database.meta.moduleName, connectionModule);
@@ -36,7 +37,7 @@ abstract class ClientGeneratorBase {
         logger.debug('Done writing table modules.');
 
         logger.debug('Writing partial table modules.');
-        await this.writeModules(moduleSubdirectory, partialTableModules);
+        await this.writeModules(partialTableSubdirectory, partialTableModules);
         logger.debug('Done writing partial table modules.');
 
         logger.debug('Writing query builder module.');
@@ -49,6 +50,7 @@ abstract class ClientGeneratorBase {
 
         for (const tableName in tables) {
             if (tables.hasOwnProperty(tableName)) {
+                logger.debug(`Generating table module for table '${tableName}'.`);
                 const table = tables[tableName];
 
                 ret.push({
@@ -66,6 +68,7 @@ abstract class ClientGeneratorBase {
 
         for (const tableName in tables) {
             if (tables.hasOwnProperty(tableName)) {
+                logger.debug(`Generating partial table module for table '${tableName}'.`);
                 const table = tables[tableName];
 
                 ret.push({

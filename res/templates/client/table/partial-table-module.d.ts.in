@@ -18,28 +18,22 @@
 }
 [header]
 import BaseClass from '@hasPartialParent:#hasPartialParent@';
-import Connection from 'mercury/dist/lib/core/connection/connection';
-import ConnectionManager from 'mercury/dist/lib/core/connection/connection-manager';
 import TableBase from 'mercury/dist/lib/core/generation/client/table-base';
+import Connection from 'mercury/dist/lib/core/connection/connection';
 
-declare class @tableName@ extends BaseClass<@tableName@.IPrimaryKey> {
+declare abstract class @tableName@<T = unknown> extends BaseClass<T> {
 @columnConstants:#array@
 
-    private constructor();
-
-    public static getConnectionManager(): ConnectionManager;
-    public static insert(data: @tableName@.IInsertData, connection?: Connection): Promise<@tableName@>;
-    public static findById(primaryKey: @tableName@.IPrimaryKey, checkExistence?: boolean, connection?: Connection): Promise<@tableName@ | null>;
-    
 @getters:#array@
+
     public multiGet(columns: @tableName@.IColumnConstantBase[], connection?: Connection): Promise<@tableName@.IMultiGetResult>;
+
 @setters:#array@
+
     public multiSet(values: @tableName@.IMultiSetData, connection?: Connection): Promise<void>;
 }
 
 declare namespace @tableName@ {
-    type IPrimaryKey = @primaryKeyType@;
-
     interface IOwnColumnConstantBase extends TableBase.IOwnColumnConstantBase {
         table: '@tableName@'
     }

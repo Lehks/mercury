@@ -2,12 +2,12 @@ import path from 'path';
 import FileConfigurator from 'file-configurator';
 import { ITable } from '../../typings/table';
 import { IDatabase } from '../../typings/database';
-import { IConcreteColumn, IColumn } from '../../typings/column';
-import { IEnum } from '../../typings/types/enum';
-import { IConcreteType } from '../../typings/type';
+import { IConcreteColumn } from '../../typings/column';
 import { ICompoundPrimaryKey } from '../../typings/primary-key';
-import TableUtils from './table-utils';
+import logger from '../../logger';
+import TableBase from './table-base';
 import ClientGeneratorBase from './client-generator-base';
+import GenerationUtils from './generation-utils';
 
 const TEMPLATE_ROOT = path.join(__dirname, '..', '..', '..', '..', '..', 'res', 'templates', 'client', 'table');
 
@@ -16,6 +16,8 @@ namespace TableModuleGenerator {
         table: ITable,
         database: IDatabase
     ): Promise<ClientGeneratorBase.IModuleCode> {
+        const columns = GenerationUtils.collectColumns(table);
+
         return {
             js: await FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'table-module.js.in'), {
                 tableName: table.meta.className,
@@ -24,140 +26,66 @@ namespace TableModuleGenerator {
                 primaryKeyNames: JSON.stringify(table.primaryKey),
                 rdbmsToPropertyNameMap: JSON.stringify(makeRdbmsToPropertyNameMap(table)),
                 propertyToRdbmsNameMap: JSON.stringify(makePropertyToRdbmsNameMap(table)),
-                columnConstants: await Promise.all(
-                    Object.values(table.columns).map(async col => generateConstant(col, table._name))
-                ),
+                hasPartialParent: table._parent !== undefined,
+                parentModule: table._parent?.meta.moduleName,
+                columnConstants: await Promise.all(columns.map(async col => GenerationUtils.generateConstant(col))),
                 getters: await Promise.all(
-                    Object.values(table.columns).map(async col => generateGetter(col, table.meta.className))
+                    columns.map(async col => GenerationUtils.generateGetter(col, table.meta.className))
                 ),
                 setters: await Promise.all(
-                    Object.values(table.columns).map(async col => generateSetter(col, table.meta.className))
+                    columns.map(async col => GenerationUtils.generateSetter(col, table.meta.className))
                 )
             }),
             typings: await FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'table-module.d.ts.in'), {
                 tableName: table.meta.className,
                 primaryKeyType: await makePrimaryKeyType(table),
                 rdbmsTableName: table.meta.rdbmsName,
+                hasPartialParent: table._parent !== undefined,
+                parentModule: table._parent?.meta.moduleName,
                 columnConstants: await Promise.all(
-                    Object.values(table.columns).map(async col => generateConstantType(col, table.meta.className))
+                    columns.map(async col => GenerationUtils.generateConstantType(col, table))
                 ),
-                getters: await Promise.all(Object.values(table.columns).map(async col => generateGetterType(col))),
-                setters: await Promise.all(Object.values(table.columns).map(async col => generateSetterType(col))),
-                multiGetProperties: await generateMultiGetProperties(table),
-                multiSetProperties: await generateMultiSetProperties(table),
-                insertDataProperties: await generateInsertDataProperties(table)
+                getters: await Promise.all(columns.map(async col => GenerationUtils.generateGetterType(col))),
+                setters: await Promise.all(columns.map(async col => GenerationUtils.generateSetterType(col))),
+                multiGetProperties: await GenerationUtils.generateMultiGetProperties(table),
+                multiSetProperties: await GenerationUtils.generateMultiSetProperties(table),
+                insertDataProperties: await GenerationUtils.generateInsertDataProperties(table)
             })
         };
     }
 
-    function makeRdbmsToPropertyNameMap(table: ITable): TableUtils.StringMap {
-        const ret: TableUtils.StringMap = {};
+    function makeRdbmsToPropertyNameMap(table: ITable): TableBase.StringMap {
+        logger.debug(`Generating RDBMS-to-property name map for table '${table._name}'.`);
+        const ret: TableBase.StringMap = {};
+        const columns = GenerationUtils.collectColumns(table, true);
 
-        for (const col of Object.values(table.columns)) {
-            const column = col as IConcreteColumn;
+        for (const column of columns) {
             ret[column.meta.rdbmsName] = column.meta.propertyName;
         }
 
         return ret;
     }
 
-    function makePropertyToRdbmsNameMap(table: ITable): TableUtils.StringMap {
-        const ret: TableUtils.StringMap = {};
+    function makePropertyToRdbmsNameMap(table: ITable): TableBase.StringMap {
+        logger.debug(`Generating property-to-RDBMS name map for table '${table._name}'.`);
+        const ret: TableBase.StringMap = {};
+        const columns = GenerationUtils.collectColumns(table, true);
 
-        for (const col of Object.values(table.columns)) {
-            const column = col as IConcreteColumn;
+        for (const column of columns) {
             ret[column.meta.propertyName] = column.meta.rdbmsName;
         }
 
         return ret;
     }
 
-    async function generateGetter(column: IColumn, table: string): Promise<string> {
-        const concreteColumn = column as IConcreteColumn;
-
-        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'getter.js.in'), {
-            methodName: concreteColumn.meta.getterName,
-            constantName: concreteColumn.meta.constantName,
-            tableName: table
-        });
-    }
-
-    async function generateGetterType(column: IColumn): Promise<string> {
-        const concreteColumn = column as IConcreteColumn;
-
-        // (concreteColumn.type as IEnum) might fail, but in that case, the value 'undefined' is fine in the context
-        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'getter.d.ts.in'), {
-            methodName: concreteColumn.meta.getterName,
-            type: await generateType(column)
-        });
-    }
-
-    async function generateSetter(column: IColumn, table: string): Promise<string> {
-        const concreteColumn = column as IConcreteColumn;
-
-        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'setter.js.in'), {
-            methodName: concreteColumn.meta.setterName,
-            constantName: concreteColumn.meta.constantName,
-            tableName: table
-        });
-    }
-
-    async function generateSetterType(column: IColumn): Promise<string> {
-        const concreteColumn = column as IConcreteColumn;
-
-        // (concreteColumn.type as IEnum) might fail, but in that case, the value 'undefined' is fine in the context
-        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'setter.d.ts.in'), {
-            methodName: concreteColumn.meta.setterName,
-            type: await generateType(column)
-        });
-    }
-
-    async function generateConstant(column: IColumn, table: string): Promise<string> {
-        const concreteColumn = column as IConcreteColumn;
-
-        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'column-constant.js.in'), {
-            constantName: concreteColumn.meta.constantName,
-            rdbmsName: concreteColumn.meta.rdbmsName,
-            propertyName: concreteColumn.meta.propertyName,
-            tableName: table
-        });
-    }
-
-    async function generateConstantType(column: IColumn, table: string): Promise<string> {
-        const concreteColumn = column as IConcreteColumn;
-
-        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'column-constant.d.ts.in'), {
-            constantName: concreteColumn.meta.constantName,
-            tableName: table
-        });
-    }
-
-    async function generateType(column: IColumn): Promise<string> {
-        const concreteColumn = column as IConcreteColumn;
-
-        return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'type.d.ts.in'), {
-            type: makeTypeHelper(column),
-            literals: (concreteColumn.type as IEnum).literals
-        });
-    }
-
-    function makeTypeHelper(column: IColumn): string {
-        const concreteColumn = column as IConcreteColumn;
-
-        if (concreteColumn.nullable) {
-            return `${(concreteColumn.type as IConcreteType).base}-null`;
-        } else {
-            return (concreteColumn.type as IConcreteType).base;
-        }
-    }
-
     async function makePrimaryKeyType(table: ITable): Promise<string> {
+        logger.debug(`Generating primary key type for table '${table._name}'.`);
         const compoundPk = table.primaryKey as ICompoundPrimaryKey;
 
         if (compoundPk.length === 1) {
             const column = getColumn(table, compoundPk[0]);
 
-            return generateType(column);
+            return GenerationUtils.generateType(column);
         } else {
             return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'primary-key-object.d.ts.in'), {
                 properties: await Promise.all(
@@ -165,7 +93,7 @@ namespace TableModuleGenerator {
                         const column = getColumn(table, name);
 
                         const propertyName = column.meta.propertyName;
-                        const type = await generateType(column);
+                        const type = await GenerationUtils.generateType(column);
                         return generateProperty(propertyName, type);
                     })
                 )
@@ -174,6 +102,7 @@ namespace TableModuleGenerator {
     }
 
     async function generateProperty(name: string, type: string): Promise<string> {
+        logger.debug(`Generating property with name '${name}' and type '${type}'.`);
         return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'property.d.ts.in'), {
             name,
             type
@@ -182,55 +111,10 @@ namespace TableModuleGenerator {
 
     // retrieves a column of a table, even if it is in a parent table
     function getColumn(table: ITable, name: string): IConcreteColumn {
-        if (table === undefined) {
-            return (undefined as unknown) as IConcreteColumn;
-        }
-
         // the primary-key-resolver made sure, that the column exists
         return table.columns[name] !== undefined
             ? (table.columns[name] as IConcreteColumn)
             : getColumn(table._parent!, name);
-    }
-
-    async function generateMultiGetProperties(table: ITable): Promise<string[]> {
-        return Promise.all(
-            Object.values(table.columns).map(async col => {
-                const concreteColumn = col as IConcreteColumn;
-
-                return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'property.d.ts.in'), {
-                    name: concreteColumn.meta.propertyName,
-                    type: await generateType(concreteColumn)
-                });
-            })
-        );
-    }
-
-    async function generateMultiSetProperties(table: ITable): Promise<string[]> {
-        return Promise.all(
-            Object.values(table.columns).map(async col => {
-                const concreteColumn = col as IConcreteColumn;
-
-                return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'property.d.ts.in'), {
-                    name: concreteColumn.meta.propertyName,
-                    type: await generateType(concreteColumn),
-                    optional: true
-                });
-            })
-        );
-    }
-
-    async function generateInsertDataProperties(table: ITable): Promise<string[]> {
-        return Promise.all(
-            Object.values(table.columns).map(async col => {
-                const concreteColumn = col as IConcreteColumn;
-
-                return FileConfigurator.configure(path.join(TEMPLATE_ROOT, 'property.d.ts.in'), {
-                    name: concreteColumn.meta.propertyName,
-                    type: await generateType(concreteColumn),
-                    optional: (concreteColumn.type as IConcreteType).default !== undefined
-                });
-            })
-        );
     }
 }
 

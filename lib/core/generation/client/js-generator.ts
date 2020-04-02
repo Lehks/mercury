@@ -4,6 +4,7 @@ import { IDatabase } from '../../typings/database';
 import { ITable } from '../../typings/table';
 import ClientGeneratorBase from './client-generator-base';
 import TableModuleGenerator from './table-module-generator';
+import PartialTableModuleGenerator from './partial-table-module-generator';
 
 const TEMPLATE_ROOT = path.join(__dirname, '..', '..', '..', '..', '..', 'res', 'templates', 'client');
 
@@ -26,10 +27,7 @@ class JSGenerator extends ClientGeneratorBase {
     }
 
     protected async generatePartialTableModule(table: ITable): Promise<ClientGeneratorBase.IModuleCode> {
-        return {
-            js: '',
-            typings: ''
-        };
+        return PartialTableModuleGenerator.generateTableModule(table);
     }
 
     protected async generateQueryBuilderModule(database: IDatabase): Promise<ClientGeneratorBase.IModuleCode> {

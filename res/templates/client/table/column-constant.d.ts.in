@@ -1,1 +1,1 @@
-    public static readonly @constantName@: @tableName@.IColumnBase;
+    public static readonly @constantName@: @tableName@.IOwnColumnConstantBase;

@@ -1,0 +1,28 @@
+[header]
+{
+    "array": {
+        "arrayJoin": "\n\n"
+    },
+    "hasPartialParent": {
+        "switch": {
+            "cases": {
+                "true": "./partial-tables/$parentModule$",
+                "false": "mercury/dist/lib/core/generation/client/table-base"
+            }
+        }
+    }
+}
+[header]
+/* eslint-disable */
+/* tslint:disable */
+const BaseClass = require('@hasPartialParent:#hasPartialParent@');
+
+class @tableName@ extends BaseClass {
+@columnConstants:#array@
+
+@getters:#array@
+
+@setters:#array@
+}
+
+module.exports = @tableName@;

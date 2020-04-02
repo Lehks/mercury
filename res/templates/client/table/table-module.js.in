@@ -2,16 +2,25 @@
 {
     "array": {
         "arrayJoin": "\n\n"
+    },
+    "hasPartialParent": {
+        "switch": {
+            "cases": {
+                "true": "./partial-tables/$parentModule$",
+                "false": "mercury/dist/lib/core/generation/client/table-base"
+            }
+        }
     }
 }
 [header]
 /* eslint-disable */
 /* tslint:disable */
 const _ = require('lodash');
-const TableUtils = require('mercury/dist/lib/core/generation/client/table-utils');
+const BaseClass = require('@hasPartialParent:#hasPartialParent@');
 const ConnectionManager = require('../@connectionModule@');
+const TableBase = require('mercury/dist/lib/core/generation/client/table-base');
 
-class @tableName@ {
+class @tableName@ extends BaseClass {
     static #DATA = {
         connectionManager: ConnectionManager,
         primaryKeyNames: @primaryKeyNames@,
@@ -24,12 +33,13 @@ class @tableName@ {
 
 @columnConstants:#array@
 
-    primaryKey;
-    #primaryKeyArray;
-
     constructor(primaryKey) {
-        this.#primaryKeyArray = [primaryKey];
-        this.primaryKey = primaryKey;
+        super(
+            @tableName@.#DATA, 
+            primaryKey, 
+            @tableName@.#RDBMS_TO_PROPERTY_NAME_MAP, 
+            @tableName@.#PROPERTY_TO_RDBMS_NAME_MAP
+        );
     }
 
     static getConnectionManager() {
@@ -37,12 +47,7 @@ class @tableName@ {
     }
 
     static async insert(data, connection) {
-        const result = await TableUtils.insert(
-            @tableName@.#DATA,
-            data,
-            @tableName@.#PROPERTY_TO_RDBMS_NAME_MAP,
-            connection
-        );
+        const result = await TableBase.insertHelper(@tableName@.#DATA, data, @tableName@.#PROPERTY_TO_RDBMS_NAME_MAP, connection);
 
         return new @tableName@(result.insertId);
     }
@@ -51,7 +56,7 @@ class @tableName@ {
         const ret = new @tableName@(primaryKey);
 
         if (checkExistence && !(await ret.exists(connection))) {
-            throw new Error();
+            return null;
         }
 
         return ret;
@@ -60,38 +65,14 @@ class @tableName@ {
 @getters:#array@
 
     async multiGet(columns, connection) {
-        return TableUtils.multiGetInternal(
-            @tableName@.#DATA,
-            columns.map(col => col.rdbmsName),
-            this.#primaryKeyArray,
-            @tableName@.#RDBMS_TO_PROPERTY_NAME_MAP,
-            connection
-        );
+        return this.multiGetInternal(columns.map(col => col.rdbmsName), connection);
     }
 
     async multiSet(values, connection) {
-        return TableUtils.multiSetInternal(
-            @tableName@.#DATA,
-            values,
-            this.#primaryKeyArray,
-            @tableName@.#PROPERTY_TO_RDBMS_NAME_MAP,
-            connection
-        );
+        return this.multiSetInternal(values, connection);
     }
 
 @setters:#array@
-
-    equals(other) {
-        return _.isEqual(this.#primaryKeyArray, other.#primaryKeyArray);
-    }
-
-    async exists(connection) {
-        return TableUtils.exists(@tableName@.#DATA, this.#primaryKeyArray, connection);
-    }
-
-    async delete(connection) {
-        return TableUtils.deleteInternal(@tableName@.#DATA, this.#primaryKeyArray, connection);
-    }
 }
 
 module.exports = @tableName@;
